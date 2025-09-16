@@ -17,7 +17,7 @@ class JWTHeader(TypedDict):
 class TypHeaderValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, header: JWTHeader) -> None:
-        """Implementations should raise InvalidTypHeaderException if invalid."""
+        """Implementations should raise InvalidTypHeaderError if invalid."""
 
 
 class TypHeaderValidator(TypHeaderValidatorInterface):
@@ -34,7 +34,7 @@ class InvalidAlgHeaderError(InvalidTokenError): ...
 class AlgHeaderValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, header: JWTHeader) -> None:
-        """Implementations should raise InvalidAlgHeaderException if invalid."""
+        """Implementations should raise InvalidAlgHeaderError if invalid."""
 
 
 class AlgHeaderValidator(AlgHeaderValidatorInterface):
@@ -60,7 +60,7 @@ class InvalidIssuerError(InvalidTokenError): ...
 class IssuerValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, claims: Payload, expected_issuer: str) -> None:
-        """Implementations should raise InvalidIssuerException if invalid."""
+        """Implementations should raise InvalidIssuerError if invalid."""
 
 
 class IssuerValidator(IssuerValidatorInterface):
