@@ -25,3 +25,18 @@ class TypHeaderValidator(TypHeaderValidatorInterface):
         typ = header.get("typ")
         if typ != "at+jwt" and typ != "application/at+jwt":
             raise InvalidTypHeaderException(f"Unexpected `typ` header value: '{typ}'!")
+
+
+class InvalidAlgHeaderException(InvalidTokenException): ...
+
+
+class AlgHeaderValidatorInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, header: JWTHeader) -> None:
+        """Implementations should raise InvalidAlgHeaderException if invalid"""
+
+
+class AlgHeaderValidator(AlgHeaderValidatorInterface):
+    def __call__(self, header: JWTHeader) -> None:
+        if header.get("alg") == "none":
+            raise InvalidAlgHeaderException("Alg header value should not be 'none'!")
