@@ -1,6 +1,6 @@
 import pytest
 
-from rfc9068 import IssuerValidator, InvalidIssuerException
+from rfc9068 import InvalidIssuerException, IssuerValidator
 
 
 def test_raises_when_issuer_does_not_match() -> None:
