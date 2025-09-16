@@ -2,10 +2,10 @@ from abc import ABCMeta, abstractmethod
 from typing import TypedDict
 
 
-class InvalidTokenException(Exception): ...
+class InvalidTokenError(Exception): ...
 
 
-class InvalidTypHeaderException(InvalidTokenException): ...
+class InvalidTypHeaderError(InvalidTokenError): ...
 
 
 class JWTHeader(TypedDict):
@@ -25,10 +25,10 @@ class TypHeaderValidator(TypHeaderValidatorInterface):
         typ = header.get("typ")
         if typ not in {"at+jwt", "application/at+jwt"}:
             msg = f"Unexpected `typ` header value: '{typ}'!"
-            raise InvalidTypHeaderException(msg)
+            raise InvalidTypHeaderError(msg)
 
 
-class InvalidAlgHeaderException(InvalidTokenException): ...
+class InvalidAlgHeaderError(InvalidTokenError): ...
 
 
 class AlgHeaderValidatorInterface(metaclass=ABCMeta):
@@ -41,7 +41,7 @@ class AlgHeaderValidator(AlgHeaderValidatorInterface):
     def __call__(self, header: JWTHeader) -> None:
         if header.get("alg") == "none":
             msg = "Alg header value should not be 'none'!"
-            raise InvalidAlgHeaderException(msg)
+            raise InvalidAlgHeaderError(msg)
 
 
 class Payload(TypedDict):
@@ -54,7 +54,7 @@ class Payload(TypedDict):
     jti: str
 
 
-class InvalidIssuerException(Exception): ...
+class InvalidIssuerError(InvalidTokenError): ...
 
 
 class IssuerValidatorInterface(metaclass=ABCMeta):
@@ -68,4 +68,4 @@ class IssuerValidator(IssuerValidatorInterface):
         issuer = claims.get("iss")
         if issuer != expected_issuer:
             msg = f"Expected issuer '{expected_issuer}', got '{issuer}'!"
-            raise InvalidIssuerException(msg)
+            raise InvalidIssuerError(msg)

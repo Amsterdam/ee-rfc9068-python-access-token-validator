@@ -1,12 +1,12 @@
 import pytest
 
-from rfc9068 import InvalidIssuerException, IssuerValidator
+from rfc9068 import InvalidIssuerError, IssuerValidator
 
 
 def test_raises_when_issuer_does_not_match() -> None:
     validate = IssuerValidator()
 
-    with pytest.raises(InvalidIssuerException):
+    with pytest.raises(InvalidIssuerError):
         validate({
             "iss": "test_issuer",
             "exp": 1234,
