@@ -69,3 +69,25 @@ class IssuerValidator(IssuerValidatorInterface):
         if issuer != expected_issuer:
             msg = f"Expected issuer '{expected_issuer}', got '{issuer}'!"
             raise InvalidIssuerError(msg)
+
+
+class InvalidAudienceError(InvalidTokenError): ...
+
+
+class AudienceValidatorInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, claims: Payload, expected_audience: str) -> None:
+        """Implementations should raise InvalidAudienceError if invalid."""
+
+
+class AudienceValidator(AudienceValidatorInterface):
+    def __call__(self, claims: Payload, expected_audience: str) -> None:
+        audience = claims.get("aud", "")
+        if isinstance(audience, str) and audience != expected_audience:
+            msg = f"Expected audience '{expected_audience}', got '{audience}'!"
+            raise InvalidAudienceError(msg)
+
+        if expected_audience not in audience:
+            msg = (f"Expected audience '{expected_audience}' not in "
+                   f"'{', '.join(aud for aud in audience)}'")
+            raise InvalidAudienceError(msg)
