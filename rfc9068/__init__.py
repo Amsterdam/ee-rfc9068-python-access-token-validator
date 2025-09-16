@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from datetime import datetime, timezone
 from typing import TypedDict
 
 
@@ -91,3 +92,21 @@ class AudienceValidator(AudienceValidatorInterface):
             msg = (f"Expected audience '{expected_audience}' not in "
                    f"'{', '.join(aud for aud in audience)}'")
             raise InvalidAudienceError(msg)
+
+
+class ExpiredTokenError(InvalidTokenError): ...
+
+
+class ExpirationValidatorInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, claims: Payload) -> None:
+        """Implementations should raise ExpiredTokenError if invalid."""
+
+
+class ExpirationValidator(ExpirationValidatorInterface):
+    def __call__(self, claims: Payload) -> None:
+        now = datetime.now(timezone.utc).timestamp()
+        exp = claims.get("exp", 0)
+        if exp <= now:
+            msg = "The token is expired!"
+            raise ExpiredTokenError(msg)
