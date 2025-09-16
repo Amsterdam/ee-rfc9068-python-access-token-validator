@@ -40,3 +40,29 @@ class AlgHeaderValidator(AlgHeaderValidatorInterface):
     def __call__(self, header: JWTHeader) -> None:
         if header.get("alg") == "none":
             raise InvalidAlgHeaderException("Alg header value should not be 'none'!")
+
+
+class Payload(TypedDict):
+    iss: str
+    exp: int
+    aud: str | list[str]
+    sub: str
+    client_id: str
+    iat: int
+    jti: str
+
+
+class InvalidIssuerException(Exception): ...
+
+
+class IssuerValidatorInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, claims: Payload, expected_issuer: str) -> None:
+        """Implementations should raise InvalidIssuerException if invalid"""
+
+
+class IssuerValidator(IssuerValidatorInterface):
+    def __call__(self, claims: Payload, expected_issuer: str) -> None:
+        issuer = claims.get("iss")
+        if issuer != expected_issuer:
+            raise InvalidIssuerException(f"Expected issuer '{expected_issuer}', got '{issuer}'!")
