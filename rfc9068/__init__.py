@@ -1,6 +1,10 @@
 from abc import ABCMeta, abstractmethod
+from collections.abc import Sequence
 from datetime import datetime, timezone
-from typing import TypedDict
+from typing import Any, TypedDict, cast
+
+from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
+from jwt import PyJWKClient, PyJWS, PyJWT
 
 
 class InvalidTokenError(Exception): ...
@@ -110,3 +114,71 @@ class ExpirationValidator(ExpirationValidatorInterface):
         if exp <= now:
             msg = "The token is expired!"
             raise ExpiredTokenError(msg)
+
+
+class JWKResolverInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, kid: str) -> str: ...
+
+
+class PyJwtJWKResolver(JWKResolverInterface):
+    _jwks_client: PyJWKClient
+
+    def __init__(self, jwks_client: PyJWKClient) -> None:
+        self._jwks_client = jwks_client
+
+    def __call__(self, kid: str) -> str:
+        key = self._jwks_client.get_signing_key(kid).key
+        return str(key)
+
+
+class InvalidSignatureError(InvalidTokenError): ...
+
+
+class SignatureValidatorInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(
+        self,
+        header: JWTHeader,
+        raw_header: str,
+        raw_payload: str,
+        signature: str,
+        algorithms: Sequence[str],
+    ) -> None: ...
+
+
+class PyJwtSignatureValidator(SignatureValidatorInterface):
+    _get_signing_key: JWKResolverInterface
+    _jwt: PyJWT
+
+    def __init__(self, jwk_resolver: JWKResolverInterface, jwt: PyJWT) -> None:
+        self._get_signing_key = jwk_resolver
+        self._jwt = jwt
+
+    def __call__(
+        self,
+        header: JWTHeader,
+        raw_header: str,
+        raw_payload: str,
+        signature: str,
+        algorithms: Sequence[str],
+    ) -> None:
+        kid = header.get("kid")
+        if kid is None:
+            msg = "Failed to get 'kid' from header!"
+            raise ValueError(msg)
+
+        signing_key = self._get_signing_key(kid)
+
+        try:
+            jws = PyJWS()
+            jws._verify_signature(  # noqa: SLF001
+                f"{raw_header}.{raw_payload}".encode(),
+                cast("dict[str, Any]", header),
+                signature.encode(),
+                signing_key,
+                algorithms,
+            )
+        except PyJWTInvalidSignatureError as e:
+            msg = "Invalid signature, the token may have been tampered with!"
+            raise InvalidSignatureError(msg) from e
