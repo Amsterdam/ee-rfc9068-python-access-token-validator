@@ -181,3 +181,36 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
         except PyJWTInvalidSignatureError as e:
             msg = "Invalid signature, the token may have been tampered with!"
             raise InvalidSignatureError(msg) from e
+
+
+class RFC9068AccessTokenValidatorInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, access_token: str) -> None: ...
+
+
+class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
+    _validate_signature: SignatureValidatorInterface
+    _validate_typ_header: TypHeaderValidatorInterface
+    _validate_alg_header: AlgHeaderValidatorInterface
+    _validate_issuer: IssuerValidatorInterface
+    _validate_audience: AudienceValidatorInterface
+    _validate_expiration: ExpirationValidatorInterface
+
+    def __init__(  # noqa: PLR0913
+        self,
+        signature_validator: SignatureValidatorInterface,
+        typ_header_validator: TypHeaderValidatorInterface,
+        alg_header_validator: AlgHeaderValidatorInterface,
+        issuer_validator: IssuerValidatorInterface,
+        audience_validator: AudienceValidatorInterface,
+        expiration_validator: ExpirationValidatorInterface,
+    ) -> None:
+        self._validate_signature = signature_validator
+        self._validate_typ_header = typ_header_validator
+        self._validate_alg_header = alg_header_validator
+        self._validate_issuer = issuer_validator
+        self._validate_audience = audience_validator
+        self._validate_expiration = expiration_validator
+
+    def __call__(self, access_token: str) -> None:
+        ...
