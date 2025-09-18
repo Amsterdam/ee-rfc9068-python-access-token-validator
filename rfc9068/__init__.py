@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, TypedDict, cast
 
 from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
-from jwt import PyJWKClient, PyJWS, PyJWT
+from jwt import PyJWKClient, PyJWS
 
 
 class InvalidTokenError(Exception): ...
@@ -149,11 +149,11 @@ class SignatureValidatorInterface(metaclass=ABCMeta):
 
 class PyJwtSignatureValidator(SignatureValidatorInterface):
     _get_signing_key: JWKResolverInterface
-    _jwt: PyJWT
+    _jws: PyJWS
 
-    def __init__(self, jwk_resolver: JWKResolverInterface, jwt: PyJWT) -> None:
+    def __init__(self, jwk_resolver: JWKResolverInterface, jws: PyJWS) -> None:
         self._get_signing_key = jwk_resolver
-        self._jwt = jwt
+        self._jws = jws
 
     def __call__(
         self,
@@ -171,8 +171,7 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
         signing_key = self._get_signing_key(kid)
 
         try:
-            jws = PyJWS()
-            jws._verify_signature(  # noqa: SLF001
+            self._jws._verify_signature(  # noqa: SLF001
                 f"{raw_header}.{raw_payload}".encode(),
                 cast("dict[str, Any]", header),
                 signature.encode(),
