@@ -147,7 +147,8 @@ class SignatureValidatorInterface(metaclass=ABCMeta):
         raw_payload: str,
         signature: str,
         algorithms: Sequence[str],
-    ) -> None: ...
+    ) -> None:
+        """Implementations should raise InvalidSignatureError if invalid."""
 
 
 class PyJwtSignatureValidator(SignatureValidatorInterface):
