@@ -10,3 +10,22 @@ services:
       watch:
         - action: rebuild
           path: ./uv.lock
+  keycloak:
+    build:
+      context: keycloak
+      dockerfile: Containerfile
+    image: amsterdam/rfc9068-access-token-validator-keycloak:latest
+    command: ["/opt/keycloak/bin/kc.sh", "start-dev", "--http-port", "8002"]
+    ports:
+      - "8002:8002"
+    volumes:
+      - "./keycloak/import:/import"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    healthcheck:
+      test: ["CMD", "echo", ">/dev/tcp/localhost/8002"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
