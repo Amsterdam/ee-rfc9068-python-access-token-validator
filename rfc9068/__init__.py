@@ -204,10 +204,18 @@ class AccessTokenParser(AccessTokenParserInterface):
     def __call__(self, access_token: str) -> ParsedAccessToken:
         raw_header, raw_payload, signature = access_token.split(".")
 
-        header = json.loads(base64.urlsafe_b64decode(raw_header))
-        payload = json.loads(base64.urlsafe_b64decode(raw_payload))
+        padded_header = self._add_padding(raw_header)
+        padded_payload = self._add_padding(raw_payload)
+
+        header = json.loads(base64.urlsafe_b64decode(padded_header))
+        payload = json.loads(base64.urlsafe_b64decode(padded_payload))
 
         return ParsedAccessToken(header, raw_header, payload, raw_payload, signature)
+
+    def _add_padding(self, value: str) -> str:
+        padding_required = 4 - (len(value) % 4)
+        value += "=" * padding_required
+        return value
 
 
 class RFC9068AccessTokenValidatorInterface(metaclass=ABCMeta):
