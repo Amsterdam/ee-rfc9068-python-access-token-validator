@@ -1,5 +1,8 @@
+import base64
+import json
 from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, TypedDict, cast
 
@@ -183,34 +186,83 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
             raise InvalidSignatureError(msg) from e
 
 
+@dataclass
+class ParsedAccessToken:
+    header: JWTHeader
+    raw_header: str
+    payload: Payload
+    raw_payload: str
+    signature: str
+
+
+class AccessTokenParserInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, access_token: str) -> ParsedAccessToken: ...
+
+
+class AccessTokenParser(AccessTokenParserInterface):
+    def __call__(self, access_token: str) -> ParsedAccessToken:
+        raw_header, raw_payload, signature = access_token.split(".")
+
+        header = json.loads(base64.urlsafe_b64decode(raw_header))
+        payload = json.loads(base64.urlsafe_b64decode(raw_payload))
+
+        return ParsedAccessToken(header, raw_header, payload, raw_payload, signature)
+
+
 class RFC9068AccessTokenValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, access_token: str) -> None: ...
 
 
 class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
+    _parse_access_token: AccessTokenParserInterface
     _validate_signature: SignatureValidatorInterface
     _validate_typ_header: TypHeaderValidatorInterface
     _validate_alg_header: AlgHeaderValidatorInterface
     _validate_issuer: IssuerValidatorInterface
     _validate_audience: AudienceValidatorInterface
     _validate_expiration: ExpirationValidatorInterface
+    _algorithms: Sequence[str]
+    _issuer: str
+    _audience: str
 
     def __init__(  # noqa: PLR0913
         self,
+        access_token_parser: AccessTokenParserInterface,
         signature_validator: SignatureValidatorInterface,
         typ_header_validator: TypHeaderValidatorInterface,
         alg_header_validator: AlgHeaderValidatorInterface,
         issuer_validator: IssuerValidatorInterface,
         audience_validator: AudienceValidatorInterface,
         expiration_validator: ExpirationValidatorInterface,
+        algorithms: Sequence[str],
+        issuer: str,
+        audience: str,
     ) -> None:
+        self._parse_access_token = access_token_parser
         self._validate_signature = signature_validator
         self._validate_typ_header = typ_header_validator
         self._validate_alg_header = alg_header_validator
         self._validate_issuer = issuer_validator
         self._validate_audience = audience_validator
         self._validate_expiration = expiration_validator
+        self._algorithms = algorithms
+        self._issuer = issuer
+        self._audience = audience
 
     def __call__(self, access_token: str) -> None:
-        ...
+        parsed_token = self._parse_access_token(access_token)
+
+        self._validate_signature(
+            parsed_token.header,
+            parsed_token.raw_header,
+            parsed_token.raw_payload,
+            parsed_token.signature,
+            self._algorithms,
+        )
+        self._validate_typ_header(parsed_token.header)
+        self._validate_alg_header(parsed_token.header)
+        self._validate_issuer(parsed_token.payload, self._issuer)
+        self._validate_audience(parsed_token.payload, self._audience)
+        self._validate_expiration(parsed_token.payload)
