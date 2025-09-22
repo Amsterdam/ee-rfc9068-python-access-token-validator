@@ -7,7 +7,6 @@ from rfc9068.core import InvalidTokenError
 class InvalidTypHeaderError(InvalidTokenError): ...
 
 
-# TODO: Header structure validation
 class JWTHeader(TypedDict):
     typ: str
     alg: str
