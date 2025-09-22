@@ -18,7 +18,13 @@ services:
       context: keycloak
       dockerfile: Containerfile
     image: amsterdam/rfc9068-access-token-validator-keycloak:latest
-    command: ["/opt/keycloak/bin/kc.sh", "start-dev", "--http-port", "8002"]
+    command:
+      - "/opt/keycloak/bin/kc.sh"
+      - "start-dev"
+      - "--http-port"
+      - "8002"
+      - "--health-enabled"
+      - "true"
     ports:
       - "8002:8002"
     volumes:
@@ -27,7 +33,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     healthcheck:
-      test: ["CMD", "echo", ">/dev/tcp/localhost/8002"]
+      test: ["CMD", "curl", "--head", "-fsS", "http://localhost:9000/health/ready"]
       interval: 10s
       timeout: 5s
       retries: 10
