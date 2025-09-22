@@ -1,6 +1,6 @@
 import pytest
 
-from rfc9068 import AudienceValidator, InvalidAudienceError
+from rfc9068.payload import AudienceValidator, InvalidAudienceError
 
 
 def test_raises_when_value_is_str_and_does_not_match() -> None:

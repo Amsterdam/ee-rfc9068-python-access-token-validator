@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from rfc9068 import ExpirationValidator, ExpiredTokenError
+from rfc9068.payload import ExpirationValidator, ExpiredTokenError
 
 
 def test_raises_when_token_is_expired() -> None:
