@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, TypedDict, cast
 
 from cryptography.hazmat.primitives._serialization import Encoding, PublicFormat
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
 from jwt import PyJWKClient, PyJWS
 
@@ -133,6 +134,10 @@ class PyJwtJWKResolver(JWKResolverInterface):
 
     def __call__(self, kid: str) -> bytes:
         key = self._jwks_client.get_signing_key(kid).key
+        if not isinstance(key, RSAPublicKey):
+            msg = "Key should be an RSA public key!"
+            raise TypeError(msg)
+
         return key.public_bytes(Encoding.OpenSSH, PublicFormat.OpenSSH)
 
 
@@ -212,9 +217,15 @@ class AccessTokenParser(AccessTokenParserInterface):
 
         header = json.loads(base64.urlsafe_b64decode(padded_header))
         payload = json.loads(base64.urlsafe_b64decode(padded_payload))
-        signature = base64.urlsafe_b64decode(padded_signature)
+        decoded_signature = base64.urlsafe_b64decode(padded_signature)
 
-        return ParsedAccessToken(header, raw_header, payload, raw_payload, signature)
+        return ParsedAccessToken(
+            header,
+            raw_header,
+            payload,
+            raw_payload,
+            decoded_signature,
+        )
 
     def _add_padding(self, value: str) -> str:
         padding_required = 4 - (len(value) % 4)

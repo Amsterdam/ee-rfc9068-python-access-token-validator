@@ -29,8 +29,8 @@ def access_token() -> str:
     assert response.status_code == 200
 
     body = response.json()
-    token = body.get("access_token", "")
-    assert token != ""
+    token = body.get("access_token")
+    assert isinstance(token, str)
 
     return token
 

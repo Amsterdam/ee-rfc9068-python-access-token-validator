@@ -51,14 +51,23 @@ def test_access_token_parser() -> None:
                                         "cnZpY2UtYWNjb3VudC10ZXN0LWNsaWVudCIsImNsaWVudE"
                                         "FkZHJlc3MiOiIxNzIuMjAuMC4xIiwiY2xpZW50X2lkIjoi"
                                         "dGVzdC1jbGllbnQifQ")
-    assert parsed_token.signature == ("TlJP8R-lFV3LAJTMXCvqOpaBQv-FpOMisFUusHvGQp98V1xC"
-                                      "GE9IgXdoa5UTSve1IdcTQVWPGOPQj6aZqJF4DZCQbSsmXm5H"
-                                      "AvvpAudoY2CIqsHcuPSmYo8ikcnxsHKy_59wvvne9dj8pJ5A"
-                                      "rZd6qH7H71RRL0oXRaEcfLlhyegSlv8qlEId8vx9CJGWI0WO"
-                                      "mOJNkQhMt_kIgpC281WmmenIh5CcLzV5td2K87eN21HRxN_n"
-                                      "i0ZIE8bgeXl75EGOdgZXs-lND6UEOn2SVC5NF6TiYLH3-MJE"
-                                      "Pe2ggMWVEbba2t7tXIxn-QXeV_1X1AFtw-gjcuGyIS7jgE7a"
-                                      "pqJ52w")
+    assert parsed_token.signature == (b'NRO\xf1\x1f\xa5\x15]\xcb\x00\x94\xcc\\+\xea:'
+                                      b'\x96\x81B\xff\x85\xa4\xe3"\xb0U.\xb0{\xc6B'
+                                      b'\x9f|W\\B\x18OH\x81whk\x95\x13J\xf7\xb5!\xd7'
+                                      b'\x13AU\x8f\x18\xe3\xd0\x8f\xa6\x99\xa8\x91x\r'
+                                      b'\x90\x90m+&^nG\x02\xfb\xe9\x02\xe7hc`\x88\xaa'
+                                      b'\xc1\xdc\xb8\xf4\xa6b\x8f"\x91\xc9\xf1\xb0r'
+                                      b'\xb2\xff\x9fp\xbe\xf9\xde\xf5\xd8\xfc\xa4\x9e@'
+                                      b'\xad\x97z\xa8~\xc7\xefTQ/J\x17E\xa1\x1c|\xb9a'
+                                      b'\xc9\xe8\x12\x96\xff*\x94B\x1d\xf2\xfc}\x08\x91'
+                                      b'\x96#E\x8e\x98\xe2M\x91\x08L\xb7\xf9\x08\x82'
+                                      b'\x90\xb6\xf3U\xa6\x99\xe9\xc8\x87\x90\x9c/5y'
+                                      b'\xb5\xdd\x8a\xf3\xb7\x8d\xdbQ\xd1\xc4\xdf\xe7'
+                                      b'\x8bFH\x13\xc6\xe0yy{\xe4A\x8ev\x06W\xb3\xe9M'
+                                      b'\x0f\xa5\x04:}\x92T.M\x17\xa4\xe2`\xb1\xf7\xf8'
+                                      b'\xc2D=\xed\xa0\x80\xc5\x95\x11\xb6\xda\xda\xde'
+                                      b'\xed\\\x8cg\xf9\x05\xdeW\xfdW\xd4\x01m\xc3'
+                                      b'\xe8#r\xe1\xb2!.\xe3\x80N\xda\xa6\xa2y\xdb')
 
     assert parsed_token.header.get("typ") == "at+jwt"
     assert parsed_token.header.get("alg") == "RS256"

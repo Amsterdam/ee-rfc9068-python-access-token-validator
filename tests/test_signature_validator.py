@@ -19,7 +19,7 @@ def test_raises_when_signature_invalid() -> None:
             '{"alg":"RS256","typ":"at+jwt","kid":"kid1"}',
             '{"iss": "test_issuer","exp": 1234,"aud": ["aud"],'
             '"sub": "sub","client_id": "client_id","iat": 5678,"jti": "jti",}',
-            "veryprettyfakesignature",
+            b"veryprettyfakesignature",
             ["RS256"],
         )
 
@@ -32,6 +32,6 @@ def test_passes_when_signature_valid() -> None:
         '{"alg":"RS256","typ":"at+jwt","kid":"kid1"}',
         '{"iss": "test_issuer","exp": 1234,"aud": ["aud"],'
         '"sub": "sub","client_id": "client_id","iat": 5678,"jti": "jti",}',
-        "veryprettyfakesignature",
+        b"veryprettyfakesignature",
         ["RS256"],
     )
