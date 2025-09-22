@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, TypedDict, cast
 
+from cryptography.hazmat.primitives._serialization import Encoding, PublicFormat
 from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
 from jwt import PyJWKClient, PyJWS
 
@@ -121,7 +122,7 @@ class ExpirationValidator(ExpirationValidatorInterface):
 
 class JWKResolverInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, kid: str) -> str: ...
+    def __call__(self, kid: str) -> bytes: ...
 
 
 class PyJwtJWKResolver(JWKResolverInterface):
@@ -130,9 +131,9 @@ class PyJwtJWKResolver(JWKResolverInterface):
     def __init__(self, jwks_client: PyJWKClient) -> None:
         self._jwks_client = jwks_client
 
-    def __call__(self, kid: str) -> str:
+    def __call__(self, kid: str) -> bytes:
         key = self._jwks_client.get_signing_key(kid).key
-        return str(key)
+        return key.public_bytes(Encoding.OpenSSH, PublicFormat.OpenSSH)
 
 
 class InvalidSignatureError(InvalidTokenError): ...
@@ -145,7 +146,7 @@ class SignatureValidatorInterface(metaclass=ABCMeta):
         header: JWTHeader,
         raw_header: str,
         raw_payload: str,
-        signature: str,
+        signature: bytes,
         algorithms: Sequence[str],
     ) -> None:
         """Implementations should raise InvalidSignatureError if invalid."""
@@ -164,7 +165,7 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
         header: JWTHeader,
         raw_header: str,
         raw_payload: str,
-        signature: str,
+        signature: bytes,
         algorithms: Sequence[str],
     ) -> None:
         kid = header.get("kid")
@@ -178,7 +179,7 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
             self._jws._verify_signature(  # noqa: SLF001
                 f"{raw_header}.{raw_payload}".encode(),
                 cast("dict[str, Any]", header),
-                signature.encode(),
+                signature,
                 signing_key,
                 algorithms,
             )
@@ -193,7 +194,7 @@ class ParsedAccessToken:
     raw_header: str
     payload: Payload
     raw_payload: str
-    signature: str
+    signature: bytes
 
 
 class AccessTokenParserInterface(metaclass=ABCMeta):
@@ -207,9 +208,11 @@ class AccessTokenParser(AccessTokenParserInterface):
 
         padded_header = self._add_padding(raw_header)
         padded_payload = self._add_padding(raw_payload)
+        padded_signature = self._add_padding(signature)
 
         header = json.loads(base64.urlsafe_b64decode(padded_header))
         payload = json.loads(base64.urlsafe_b64decode(padded_payload))
+        signature = base64.urlsafe_b64decode(padded_signature)
 
         return ParsedAccessToken(header, raw_header, payload, raw_payload, signature)
 
