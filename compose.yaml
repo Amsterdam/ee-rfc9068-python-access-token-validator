@@ -1,6 +1,6 @@
 services:
   validator:
-    image: amsterdam/rfc9068-access-token-validator
+    image: amsterdam/rfc9068-access-token-validator:latest
     build:
       context: .
       dockerfile: Containerfile
@@ -10,6 +10,9 @@ services:
       watch:
         - action: rebuild
           path: ./uv.lock
+    depends_on:
+      keycloak:
+        condition: service_healthy
   keycloak:
     build:
       context: keycloak
