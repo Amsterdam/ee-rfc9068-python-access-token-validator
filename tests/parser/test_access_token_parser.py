@@ -1,4 +1,4 @@
-from rfc9068 import AccessTokenParser
+from rfc9068.parser import AccessTokenParser
 
 
 def test_access_token_parser() -> None:
