@@ -4,7 +4,11 @@ import pytest
 from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
 from jwt import PyJWS
 
-from rfc9068 import InvalidSignatureError, JWKResolverInterface, PyJwtSignatureValidator
+from rfc9068.signature import (
+    InvalidSignatureError,
+    JWKResolverInterface,
+    PyJwtSignatureValidator,
+)
 
 
 def test_raises_when_signature_invalid() -> None:

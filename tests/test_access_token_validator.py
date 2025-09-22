@@ -4,12 +4,11 @@ from jwt import PyJWKClient, PyJWS
 
 from rfc9068 import (
     AccessTokenParser,
-    PyJwtJWKResolver,
-    PyJwtSignatureValidator,
     RFC9068AccessTokenValidator,
 )
 from rfc9068.header import AlgHeaderValidator, TypHeaderValidator
 from rfc9068.payload import AudienceValidator, ExpirationValidator, IssuerValidator
+from rfc9068.signature import PyJwtJWKResolver, PyJwtSignatureValidator
 
 
 @pytest.fixture
