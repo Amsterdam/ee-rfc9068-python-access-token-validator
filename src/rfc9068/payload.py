@@ -5,6 +5,7 @@ from typing import TypedDict
 from rfc9068.core import InvalidTokenError
 
 
+# TODO: Required claims validation
 class Payload(TypedDict):
     iss: str
     exp: int
