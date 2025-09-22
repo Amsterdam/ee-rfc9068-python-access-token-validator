@@ -1,6 +1,6 @@
 import pytest
 
-from rfc9068 import AlgHeaderValidator, InvalidAlgHeaderError
+from rfc9068.header import AlgHeaderValidator, InvalidAlgHeaderError
 
 
 def test_raises_when_value_is_none() -> None:

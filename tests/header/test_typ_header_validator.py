@@ -1,6 +1,6 @@
 import pytest
 
-from rfc9068 import InvalidTypHeaderError, TypHeaderValidator
+from rfc9068.header import InvalidTypHeaderError, TypHeaderValidator
 
 
 @pytest.mark.parametrize("value", ["JWT", "test", "something_else"])
