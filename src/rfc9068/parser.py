@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from pydantic import BaseModel, ValidationError
-from rfc9068.core import InvalidTokenError
 
+from rfc9068.core import InvalidTokenError
 from rfc9068.payload import Payload
 
 

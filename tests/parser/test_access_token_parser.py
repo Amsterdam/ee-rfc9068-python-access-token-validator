@@ -69,9 +69,9 @@ def test_access_token_parser() -> None:
                                       b'\xed\\\x8cg\xf9\x05\xdeW\xfdW\xd4\x01m\xc3'
                                       b'\xe8#r\xe1\xb2!.\xe3\x80N\xda\xa6\xa2y\xdb')
 
-    assert parsed_token.header.get("typ") == "at+jwt"
-    assert parsed_token.header.get("alg") == "RS256"
-    assert (parsed_token.header.get("kid") ==
+    assert parsed_token.header.typ == "at+jwt"
+    assert parsed_token.header.alg == "RS256"
+    assert (parsed_token.header.kid ==
             "YJcgzJi5YpGJxBbuyHn6lOk1XqZTIehApnm6S7m2JcY")
 
     assert (parsed_token.payload.get("iss") ==

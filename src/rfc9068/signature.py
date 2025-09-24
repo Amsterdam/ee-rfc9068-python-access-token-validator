@@ -6,9 +6,9 @@ from cryptography.hazmat.primitives._serialization import Encoding, PublicFormat
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
 from jwt import PyJWKClient, PyJWS
-from rfc9068.parser import JWTHeader
 
 from rfc9068.core import InvalidTokenError
+from rfc9068.parser import JWTHeader
 
 
 class JWKResolverInterface(metaclass=ABCMeta):

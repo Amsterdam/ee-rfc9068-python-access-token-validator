@@ -4,6 +4,7 @@ import pytest
 from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
 from jwt import PyJWS
 
+from rfc9068.parser import JWTHeader, ValidAlgHeaderValues, ValidTypHeaderValues
 from rfc9068.signature import (
     InvalidSignatureError,
     JWKResolverInterface,
@@ -19,7 +20,11 @@ def test_raises_when_signature_invalid() -> None:
 
     with pytest.raises(InvalidSignatureError):
         validate(
-            {"alg": "RS256", "typ": "typ", "kid": "kid"},
+            JWTHeader(
+                alg=ValidAlgHeaderValues.RS256,
+                typ=ValidTypHeaderValues.AT_JWT,
+                kid="kid1",
+            ),
             '{"alg":"RS256","typ":"at+jwt","kid":"kid1"}',
             '{"iss": "test_issuer","exp": 1234,"aud": ["aud"],'
             '"sub": "sub","client_id": "client_id","iat": 5678,"jti": "jti",}',
@@ -32,7 +37,11 @@ def test_passes_when_signature_valid() -> None:
     validate = PyJwtSignatureValidator(Mock(JWKResolverInterface), Mock(PyJWS))
 
     validate(
-        {"alg": "RS256", "typ": "typ", "kid": "kid"},
+        JWTHeader(
+            alg=ValidAlgHeaderValues.RS256,
+            typ=ValidTypHeaderValues.AT_JWT,
+            kid="kid1",
+        ),
         '{"alg":"RS256","typ":"at+jwt","kid":"kid1"}',
         '{"iss": "test_issuer","exp": 1234,"aud": ["aud"],'
         '"sub": "sub","client_id": "client_id","iat": 5678,"jti": "jti",}',
