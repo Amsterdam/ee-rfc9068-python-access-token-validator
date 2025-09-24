@@ -1,10 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
 
-from rfc9068.header import (
-    AlgHeaderValidatorInterface,
-    TypHeaderValidatorInterface,
-)
 from rfc9068.parser import AccessTokenParserInterface
 from rfc9068.payload import (
     AudienceValidatorInterface,
@@ -22,8 +18,6 @@ class RFC9068AccessTokenValidatorInterface(metaclass=ABCMeta):
 class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
     _parse_access_token: AccessTokenParserInterface
     _validate_signature: SignatureValidatorInterface
-    _validate_typ_header: TypHeaderValidatorInterface
-    _validate_alg_header: AlgHeaderValidatorInterface
     _validate_issuer: IssuerValidatorInterface
     _validate_audience: AudienceValidatorInterface
     _validate_expiration: ExpirationValidatorInterface
@@ -35,8 +29,6 @@ class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
         self,
         access_token_parser: AccessTokenParserInterface,
         signature_validator: SignatureValidatorInterface,
-        typ_header_validator: TypHeaderValidatorInterface,
-        alg_header_validator: AlgHeaderValidatorInterface,
         issuer_validator: IssuerValidatorInterface,
         audience_validator: AudienceValidatorInterface,
         expiration_validator: ExpirationValidatorInterface,
@@ -46,8 +38,6 @@ class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
     ) -> None:
         self._parse_access_token = access_token_parser
         self._validate_signature = signature_validator
-        self._validate_typ_header = typ_header_validator
-        self._validate_alg_header = alg_header_validator
         self._validate_issuer = issuer_validator
         self._validate_audience = audience_validator
         self._validate_expiration = expiration_validator
@@ -65,8 +55,6 @@ class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
             parsed_token.signature,
             self._algorithms,
         )
-        self._validate_typ_header(parsed_token.header)
-        self._validate_alg_header(parsed_token.header)
         self._validate_issuer(parsed_token.payload, self._issuer)
         self._validate_audience(parsed_token.payload, self._audience)
         self._validate_expiration(parsed_token.payload)
