@@ -68,7 +68,7 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
         try:
             self._jws._verify_signature(  # noqa: SLF001
                 f"{raw_header}.{raw_payload}".encode(),
-                cast("dict[str, Any]", header),
+                header.model_dump(),
                 signature,
                 signing_key,
                 algorithms,
