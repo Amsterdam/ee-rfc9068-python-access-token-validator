@@ -2,9 +2,30 @@ import base64
 import json
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
+from enum import StrEnum
 
-from rfc9068.header import JWTHeader
+from pydantic import BaseModel, ValidationError
+from rfc9068.core import InvalidTokenError
+
 from rfc9068.payload import Payload
+
+
+class InvalidTypHeaderError(InvalidTokenError): ...
+
+
+class ValidTypHeaderValues(StrEnum):
+    AT_JWT = "at+jwt"
+    APPLICATION_AT_JWT = "application/at+jwt"
+
+
+class ValidAlgHeaderValues(StrEnum):
+    RS256 = "RS256"
+
+
+class JWTHeader(BaseModel):
+    typ: ValidTypHeaderValues
+    alg: ValidAlgHeaderValues
+    kid: str
 
 
 @dataclass
@@ -29,7 +50,12 @@ class AccessTokenParser(AccessTokenParserInterface):
         padded_payload = self._add_padding(raw_payload)
         padded_signature = self._add_padding(signature)
 
-        header = json.loads(base64.urlsafe_b64decode(padded_header))
+        decoded_header = base64.urlsafe_b64decode(padded_header)
+        try:
+            header = JWTHeader.model_validate_json(decoded_header)
+        except ValidationError as e:
+            raise InvalidTypHeaderError(str(e)) from e
+
         payload = json.loads(base64.urlsafe_b64decode(padded_payload))
         decoded_signature = base64.urlsafe_b64decode(padded_signature)
 
