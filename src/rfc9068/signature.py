@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
-from typing import Any, cast
 
 from cryptography.hazmat.primitives._serialization import Encoding, PublicFormat
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
