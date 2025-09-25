@@ -1,10 +1,13 @@
-from rfc9068.parser import AccessTokenParser
+import base64
+import json
 
+import pytest
 
-def test_access_token_parser() -> None:
-    parse = AccessTokenParser()
-    parsed_token = parse("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiYXQrand0Iiwia2lkIiA6ICJZSmNne"
-                         "kppNVlwR0p4QmJ1eUhuNmxPazFYcVpUSWVoQXBubTZTN20ySmNZIn0.eyJleH"
+from rfc9068.parser import AccessTokenParser, InvalidHeaderError
+
+valid_header = ("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiYXQrand0Iiwia2lkIiA6ICJZSmNnekppNVlwR0"
+                "p4QmJ1eUhuNmxPazFYcVpUSWVoQXBubTZTN20ySmNZIn0")
+valid_payload = ("eyJleH"
                          "AiOjE3NTc1NDQzMzMsImlhdCI6MTc1NzUwODMzNCwianRpIjoidHJydGNjOjM"
                          "2YjAzNjAwLWI2YzYtMjUwMS00YmNkLWFlNjJhMDM2ZTRlOCIsImlzcyI6Imh0"
                          "dHA6Ly9sb2NhbGhvc3Q6ODAwMi9yZWFsbXMvYW1zdGVyZGFtLW1haWwtc2Vyd"
@@ -20,37 +23,19 @@ def test_access_token_parser() -> None:
                          "xfdmVyaWZpZWQiOmZhbHNlLCJjbGllbnRIb3N0IjoiMTcyLjIwLjAuMSIsInB"
                          "yZWZlcnJlZF91c2VybmFtZSI6InNlcnZpY2UtYWNjb3VudC10ZXN0LWNsaWVu"
                          "dCIsImNsaWVudEFkZHJlc3MiOiIxNzIuMjAuMC4xIiwiY2xpZW50X2lkIjoid"
-                         "GVzdC1jbGllbnQifQ.TlJP8R-lFV3LAJTMXCvqOpaBQv-FpOMisFUusHvGQp9"
+                         "GVzdC1jbGllbnQifQ")
+valid_signature = ("TlJP8R-lFV3LAJTMXCvqOpaBQv-FpOMisFUusHvGQp9"
                          "8V1xCGE9IgXdoa5UTSve1IdcTQVWPGOPQj6aZqJF4DZCQbSsmXm5HAvvpAudo"
                          "Y2CIqsHcuPSmYo8ikcnxsHKy_59wvvne9dj8pJ5ArZd6qH7H71RRL0oXRaEcf"
                          "LlhyegSlv8qlEId8vx9CJGWI0WOmOJNkQhMt_kIgpC281WmmenIh5CcLzV5td"
                          "2K87eN21HRxN_ni0ZIE8bgeXl75EGOdgZXs-lND6UEOn2SVC5NF6TiYLH3-MJ"
                          "EPe2ggMWVEbba2t7tXIxn-QXeV_1X1AFtw-gjcuGyIS7jgE7apqJ52w")
+def test_access_token_parser() -> None:
+    parse = AccessTokenParser()
+    parsed_token = parse(f"{valid_header}.{valid_payload}.{valid_signature}")
 
-    assert parsed_token.raw_header == ("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiYXQrand0Iiwia2l"
-                                       "kIiA6ICJZSmNnekppNVlwR0p4QmJ1eUhuNmxPazFYcVpUSW"
-                                       "VoQXBubTZTN20ySmNZIn0")
-    assert parsed_token.raw_payload == ("eyJleHAiOjE3NTc1NDQzMzMsImlhdCI6MTc1NzUwODMzNC"
-                                        "wianRpIjoidHJydGNjOjM2YjAzNjAwLWI2YzYtMjUwMS00"
-                                        "YmNkLWFlNjJhMDM2ZTRlOCIsImlzcyI6Imh0dHA6Ly9sb2"
-                                        "NhbGhvc3Q6ODAwMi9yZWFsbXMvYW1zdGVyZGFtLW1haWwt"
-                                        "c2VydmljZSIsImF1ZCI6WyJhbXN0ZXJkYW0tbWFpbC1zZX"
-                                        "J2aWNlIiwiYWNjb3VudCJdLCJzdWIiOiJjY2QwM2VkNC02"
-                                        "ODczLTQyMmYtODI4Yi0zOGEzOWUzNThmYzkiLCJ0eXAiOi"
-                                        "JCZWFyZXIiLCJhenAiOiJ0ZXN0LWNsaWVudCIsImFjciI6"
-                                        "IjEiLCJhbGxvd2VkLW9yaWdpbnMiOlsiaHR0cDovL2xvY2"
-                                        "FsaG9zdDozMDAxIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xl"
-                                        "cyI6WyJvZmZsaW5lX2FjY2VzcyIsImRlZmF1bHQtcm9sZX"
-                                        "MtYW1zdGVyZGFtLW1haWwtc2VydmljZSIsInVtYV9hdXRo"
-                                        "b3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYW"
-                                        "Njb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIs"
-                                        "Im1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maW"
-                                        "xlIl19fSwic2NvcGUiOiJwcm9maWxlIGVtYWlsIiwiZW1h"
-                                        "aWxfdmVyaWZpZWQiOmZhbHNlLCJjbGllbnRIb3N0IjoiMT"
-                                        "cyLjIwLjAuMSIsInByZWZlcnJlZF91c2VybmFtZSI6InNl"
-                                        "cnZpY2UtYWNjb3VudC10ZXN0LWNsaWVudCIsImNsaWVudE"
-                                        "FkZHJlc3MiOiIxNzIuMjAuMC4xIiwiY2xpZW50X2lkIjoi"
-                                        "dGVzdC1jbGllbnQifQ")
+    assert parsed_token.raw_header == valid_header
+    assert parsed_token.raw_payload == valid_payload
     assert parsed_token.signature == (b'NRO\xf1\x1f\xa5\x15]\xcb\x00\x94\xcc\\+\xea:'
                                       b'\x96\x81B\xff\x85\xa4\xe3"\xb0U.\xb0{\xc6B'
                                       b'\x9f|W\\B\x18OH\x81whk\x95\x13J\xf7\xb5!\xd7'
@@ -83,3 +68,256 @@ def test_access_token_parser() -> None:
     assert parsed_token.payload.get("iat") == 1757508334
     assert (parsed_token.payload.get("jti") ==
             "trrtcc:36b03600-b6c6-2501-4bcd-ae62a036e4e8")
+
+
+def test_missing_typ_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "RS256", "kid": "1234"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value).startswith("1 validation error for JWTHeader\ntyp\n  "
+                                          "Field required")
+
+
+def test_missing_alg_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"typ": "application/at+jwt", "kid": "1234"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value).startswith("1 validation error for JWTHeader\nalg\n  "
+                                          "Field required")
+
+
+def test_missing_alg_and_typ_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"kid": "1234"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("2 validation errors for JWTHeader\ntyp\n  "
+                                          "Field required [type=missing, input_value="
+                                          "{'kid': '1234'}, input_type=dict]\n    For"
+                                          " further information visit https://errors."
+                                          "pydantic.dev/2.11/v/missing\nalg\n  Field "
+                                          "required [type=missing, input_value={'kid'"
+                                          ": '1234'}, input_type=dict]\n    For furth"
+                                          "er information visit https://errors.pydant"
+                                          "ic.dev/2.11/v/missing")
+
+
+def test_missing_alg_and_kid_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"typ": "at+jwt"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("2 validation errors for JWTHeader\nalg\n  Field "
+                                   "required [type=missing, input_value={'typ': 'at+"
+                                   "jwt'}, input_type=dict]\n    For further informa"
+                                   "tion visit https://errors.pydantic.dev/2.11/v/mi"
+                                   "ssing\nkid\n  Field required [type=missing, inpu"
+                                   "t_value={'typ': 'at+jwt'}, input_type=dict]\n   "
+                                   " For further information visit https://errors.py"
+                                   "dantic.dev/2.11/v/missing")
+
+
+def test_missing_typ_and_kid_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "RS256"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("2 validation errors for JWTHeader\ntyp\n  Field "
+                                   "required [type=missing, input_value={'alg': 'RS2"
+                                   "56'}, input_type=dict]\n    For further informat"
+                                   "ion visit https://errors.pydantic.dev/2.11/v/mis"
+                                   "sing\nkid\n  Field required [type=missing, input"
+                                   "_value={'alg': 'RS256'}, input_type=dict]\n    F"
+                                   "or further information visit https://errors.pyda"
+                                   "ntic.dev/2.11/v/missing")
+
+def test_missing_kid_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "RS256", "typ": "application/at+jwt"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value).startswith("1 validation error for JWTHeader\nkid\n  "
+                                          "Field required")
+
+
+def test_missing_all_headers() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("3 validation errors for JWTHeader\ntyp\n  "
+                                          "Field required [type=missing, input_value="
+                                          "{}, input_type=dict]\n    For further info"
+                                          "rmation visit https://errors.pydantic.dev/"
+                                          "2.11/v/missing\nalg\n  Field required [typ"
+                                          "e=missing, input_value={}, input_type=dict"
+                                          "]\n    For further information visit https"
+                                          "://errors.pydantic.dev/2.11/v/missing\nkid"
+                                          "\n  Field required [type=missing, input_va"
+                                          "lue={}, input_type=dict]\n    For further "
+                                          "information visit https://errors.pydantic."
+                                          "dev/2.11/v/missing")
+
+
+def test_invalid_alg_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "none", "typ": "at+jwt", "kid": "456789"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("1 validation error for JWTHeader\nalg\n  Input sho"
+                                   "uld be 'RS256' [type=enum, input_value='none', inp"
+                                   "ut_type=str]\n    For further information visit ht"
+                                   "tps://errors.pydantic.dev/2.11/v/enum")
+
+
+def test_invalid_kid_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "RS256", "typ": "at+jwt", "kid": 456789}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("1 validation error for JWTHeader\nkid\n  Input shou"
+                                   "ld be a valid string [type=string_type, input_value"
+                                   "=456789, input_type=int]\n    For further informati"
+                                   "on visit https://errors.pydantic.dev/2.11/v/string_"
+                                   "type")
+
+def test_invalid_typ_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"typ": "invalid", "alg": "RS256", "kid": "1234"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value).startswith("1 validation error for JWTHeader\ntyp\n  "
+                                          "Input should be 'at+jwt' or 'application/"
+                                          "at+jwt'")
+
+
+def test_invalid_alg_and_typ_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"typ": "invalid", "alg": "none", "kid": "1234"}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("2 validation errors for JWTHeader\ntyp\n  Input sho"
+                                   "uld be 'at+jwt' or 'application/at+jwt' [type=enum,"
+                                   " input_value='invalid', input_type=str]\n    For fu"
+                                   "rther information visit https://errors.pydantic.dev"
+                                   "/2.11/v/enum\nalg\n  Input should be 'RS256' [type="
+                                   "enum, input_value='none', input_type=str]\n    For "
+                                   "further information visit https://errors.pydantic.d"
+                                   "ev/2.11/v/enum")
+
+
+def test_invalid_alg_and_kid_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"typ": "application/at+jwt", "alg": "none", "kid": 1234}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("2 validation errors for JWTHeader\nalg\n  Input sho"
+                                   "uld be 'RS256' [type=enum, input_value='none', inpu"
+                                   "t_type=str]\n    For further information visit http"
+                                   "s://errors.pydantic.dev/2.11/v/enum\nkid\n  Input s"
+                                   "hould be a valid string [type=string_type, input_va"
+                                   "lue=1234, input_type=int]\n    For further informat"
+                                   "ion visit https://errors.pydantic.dev/2.11/v/string"
+                                   "_type")
+
+
+def test_invalid_typ_and_kid_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"typ": "image/png", "alg": "RS256", "kid": 1234}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("2 validation errors for JWTHeader\ntyp\n  Input sho"
+                                   "uld be 'at+jwt' or 'application/at+jwt' [type=enum,"
+                                   " input_value='image/png', input_type=str]\n    For "
+                                   "further information visit https://errors.pydantic.d"
+                                   "ev/2.11/v/enum\nkid\n  Input should be a valid stri"
+                                   "ng [type=string_type, input_value=1234, input_type="
+                                   "int]\n    For further information visit https://err"
+                                   "ors.pydantic.dev/2.11/v/string_type")
+
+
+def test_invalid_alg_typ_and_kid_header() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"typ": "it+jwt", "alg": "none", "kid": 1234}).encode(),
+    )
+
+    parse = AccessTokenParser()
+    with pytest.raises(InvalidHeaderError) as exc_info:
+        parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
+
+    assert str(exc_info.value) == ("3 validation errors for JWTHeader\ntyp\n  Input sho"
+                                   "uld be 'at+jwt' or 'application/at+jwt' [type=enum,"
+                                   " input_value='it+jwt', input_type=str]\n    For fur"
+                                   "ther information visit https://errors.pydantic.dev/"
+                                   "2.11/v/enum\nalg\n  Input should be 'RS256' [type=e"
+                                   "num, input_value='none', input_type=str]\n    For f"
+                                   "urther information visit https://errors.pydantic.de"
+                                   "v/2.11/v/enum\nkid\n  Input should be a valid strin"
+                                   "g [type=string_type, input_value=1234, input_type=i"
+                                   "nt]\n    For further information visit https://erro"
+                                   "rs.pydantic.dev/2.11/v/string_type")
+
+
+def test_extra_headers_are_ignored() -> None:
+    header = base64.urlsafe_b64encode(
+        json.dumps(
+            {"typ": "at+jwt", "alg": "RS256", "kid": "1234", "xtr": "bla"},
+        ).encode(),
+    )
+
+    parse = AccessTokenParser()
+    parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
