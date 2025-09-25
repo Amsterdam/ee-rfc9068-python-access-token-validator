@@ -10,7 +10,7 @@ from rfc9068.core import InvalidTokenError
 from rfc9068.payload import Payload
 
 
-class InvalidTypHeaderError(InvalidTokenError): ...
+class InvalidHeaderError(InvalidTokenError): ...
 
 
 class ValidTypHeaderValues(StrEnum):
@@ -54,7 +54,7 @@ class AccessTokenParser(AccessTokenParserInterface):
         try:
             header = JWTHeader.model_validate_json(decoded_header)
         except ValidationError as e:
-            raise InvalidTypHeaderError(str(e)) from e
+            raise InvalidHeaderError(str(e)) from e
 
         payload = json.loads(base64.urlsafe_b64decode(padded_payload))
         decoded_signature = base64.urlsafe_b64decode(padded_signature)
