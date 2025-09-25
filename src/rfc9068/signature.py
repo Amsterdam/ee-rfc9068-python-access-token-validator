@@ -1,6 +1,5 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
-from typing import Any, cast
 
 from cryptography.hazmat.primitives._serialization import Encoding, PublicFormat
 from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
@@ -8,7 +7,7 @@ from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
 from jwt import PyJWKClient, PyJWS
 
 from rfc9068.core import InvalidTokenError
-from rfc9068.header import JWTHeader
+from rfc9068.parser import JWTHeader
 
 
 class JWKResolverInterface(metaclass=ABCMeta):
@@ -63,17 +62,12 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
         signature: bytes,
         algorithms: Sequence[str],
     ) -> None:
-        kid = header.get("kid")
-        if kid is None:
-            msg = "Failed to get 'kid' from header!"
-            raise ValueError(msg)
-
-        signing_key = self._get_signing_key(kid)
+        signing_key = self._get_signing_key(header.kid)
 
         try:
             self._jws._verify_signature(  # noqa: SLF001
                 f"{raw_header}.{raw_payload}".encode(),
-                cast("dict[str, Any]", header),
+                header.model_dump(),
                 signature,
                 signing_key,
                 algorithms,

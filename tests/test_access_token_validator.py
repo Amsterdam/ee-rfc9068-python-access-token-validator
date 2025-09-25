@@ -3,7 +3,6 @@ import pytest
 from jwt import PyJWKClient, PyJWS
 
 from rfc9068 import RFC9068AccessTokenValidator
-from rfc9068.header import AlgHeaderValidator, TypHeaderValidator
 from rfc9068.parser import AccessTokenParser
 from rfc9068.payload import AudienceValidator, ExpirationValidator, IssuerValidator
 from rfc9068.signature import PyJwtJWKResolver, PyJwtSignatureValidator
@@ -40,8 +39,6 @@ def test_access_token_validator_passes_with_valid_token(access_token: str) -> No
             ),
             jws,
         ),
-        TypHeaderValidator(),
-        AlgHeaderValidator(),
         IssuerValidator(),
         AudienceValidator(),
         ExpirationValidator(),
