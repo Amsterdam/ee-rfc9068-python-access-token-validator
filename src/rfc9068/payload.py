@@ -1,11 +1,12 @@
 from abc import ABCMeta, abstractmethod
 from datetime import datetime, timezone
-from typing import TypedDict
+
+from pydantic import BaseModel
 
 from rfc9068.core import InvalidTokenError
 
 
-class Payload(TypedDict):
+class Payload(BaseModel):
     iss: str
     exp: int
     aud: str | list[str]
@@ -15,7 +16,10 @@ class Payload(TypedDict):
     jti: str
 
 
-class InvalidIssuerError(InvalidTokenError): ...
+class InvalidPayloadError(InvalidTokenError): ...
+
+
+class InvalidIssuerError(InvalidPayloadError): ...
 
 
 class IssuerValidatorInterface(metaclass=ABCMeta):
@@ -26,13 +30,13 @@ class IssuerValidatorInterface(metaclass=ABCMeta):
 
 class IssuerValidator(IssuerValidatorInterface):
     def __call__(self, claims: Payload, expected_issuer: str) -> None:
-        issuer = claims.get("iss")
+        issuer = claims.iss
         if issuer != expected_issuer:
             msg = f"Expected issuer '{expected_issuer}', got '{issuer}'!"
             raise InvalidIssuerError(msg)
 
 
-class InvalidAudienceError(InvalidTokenError): ...
+class InvalidAudienceError(InvalidPayloadError): ...
 
 
 class AudienceValidatorInterface(metaclass=ABCMeta):
@@ -43,7 +47,7 @@ class AudienceValidatorInterface(metaclass=ABCMeta):
 
 class AudienceValidator(AudienceValidatorInterface):
     def __call__(self, claims: Payload, expected_audience: str) -> None:
-        audience = claims.get("aud", "")
+        audience = claims.aud
         if isinstance(audience, str) and audience != expected_audience:
             msg = f"Expected audience '{expected_audience}', got '{audience}'!"
             raise InvalidAudienceError(msg)
@@ -54,7 +58,7 @@ class AudienceValidator(AudienceValidatorInterface):
             raise InvalidAudienceError(msg)
 
 
-class ExpiredTokenError(InvalidTokenError): ...
+class ExpiredTokenError(InvalidPayloadError): ...
 
 
 class ExpirationValidatorInterface(metaclass=ABCMeta):
@@ -66,7 +70,7 @@ class ExpirationValidatorInterface(metaclass=ABCMeta):
 class ExpirationValidator(ExpirationValidatorInterface):
     def __call__(self, claims: Payload) -> None:
         now = datetime.now(timezone.utc).timestamp()
-        exp = claims.get("exp", 0)
+        exp = claims.exp
         if exp <= now:
             msg = "The token is expired!"
             raise ExpiredTokenError(msg)

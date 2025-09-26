@@ -59,14 +59,14 @@ def test_access_token_parser() -> None:
     assert (parsed_token.header.kid ==
             "YJcgzJi5YpGJxBbuyHn6lOk1XqZTIehApnm6S7m2JcY")
 
-    assert (parsed_token.payload.get("iss") ==
+    assert (parsed_token.payload.iss ==
             "http://localhost:8002/realms/amsterdam-mail-service")
-    assert parsed_token.payload.get("exp") == 1757544333
-    assert parsed_token.payload.get("aud") == ["amsterdam-mail-service", "account"]
-    assert parsed_token.payload.get("sub") == "ccd03ed4-6873-422f-828b-38a39e358fc9"
-    assert parsed_token.payload.get("client_id") == "test-client"
-    assert parsed_token.payload.get("iat") == 1757508334
-    assert (parsed_token.payload.get("jti") ==
+    assert parsed_token.payload.exp == 1757544333
+    assert parsed_token.payload.aud == ["amsterdam-mail-service", "account"]
+    assert parsed_token.payload.sub == "ccd03ed4-6873-422f-828b-38a39e358fc9"
+    assert parsed_token.payload.client_id == "test-client"
+    assert parsed_token.payload.iat == 1757508334
+    assert (parsed_token.payload.jti ==
             "trrtcc:36b03600-b6c6-2501-4bcd-ae62a036e4e8")
 
 

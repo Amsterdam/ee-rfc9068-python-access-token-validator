@@ -1,5 +1,4 @@
 import base64
-import json
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
@@ -7,7 +6,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ValidationError
 
 from rfc9068.core import InvalidTokenError
-from rfc9068.payload import Payload
+from rfc9068.payload import InvalidPayloadError, Payload
 
 
 class InvalidHeaderError(InvalidTokenError): ...
@@ -56,7 +55,12 @@ class AccessTokenParser(AccessTokenParserInterface):
         except ValidationError as e:
             raise InvalidHeaderError(str(e)) from e
 
-        payload = json.loads(base64.urlsafe_b64decode(padded_payload))
+        decoded_payload = base64.urlsafe_b64decode(padded_payload)
+        try:
+            payload = Payload.model_validate_json(decoded_payload)
+        except ValidationError as e:
+            raise InvalidPayloadError(str(e)) from e
+
         decoded_signature = base64.urlsafe_b64decode(padded_signature)
 
         return ParsedAccessToken(
