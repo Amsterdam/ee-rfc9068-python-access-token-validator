@@ -1,14 +1,15 @@
 from unittest.mock import Mock
 
 import pytest
-from jwt import InvalidSignatureError as PyJWTInvalidSignatureError, PyJWK, PyJWKClient
-from jwt import PyJWS
+from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
+from jwt import PyJWK, PyJWKClient, PyJWS
 
 from rfc9068.parser import JWTHeader, ValidAlgHeaderValues, ValidTypHeaderValues
 from rfc9068.signature import (
     InvalidSignatureError,
     JWKResolverInterface,
-    PyJwtSignatureValidator, PyJwtJWKResolver,
+    PyJwtJWKResolver,
+    PyJwtSignatureValidator,
 )
 
 
