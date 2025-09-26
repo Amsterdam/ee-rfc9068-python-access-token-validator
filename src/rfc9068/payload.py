@@ -7,6 +7,8 @@ from rfc9068.core import InvalidTokenError
 
 
 class Payload(BaseModel):
+    model_config = {"extra": "allow"}
+
     iss: str
     exp: int
     aud: str | list[str]
