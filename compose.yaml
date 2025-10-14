@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Containerfile
       args:
-        PYTHON_VERSION: ${PYTHON_VERSION:-3.13}
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
     volumes:
       - ".:/app:rw,Z"
     develop:
