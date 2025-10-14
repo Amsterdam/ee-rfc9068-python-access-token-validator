@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from pydantic import BaseModel
 
@@ -71,7 +71,7 @@ class ExpirationValidatorInterface(metaclass=ABCMeta):
 
 class ExpirationValidator(ExpirationValidatorInterface):
     def __call__(self, claims: Payload) -> None:
-        now = datetime.now(timezone.utc).timestamp()
+        now = datetime.now(UTC).timestamp()
         exp = claims.exp
         if exp <= now:
             msg = "The token is expired!"
