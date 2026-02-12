@@ -39,7 +39,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
 
       - name: Ty
-        run: uv run ty check
+        run: uv run ty check --output-format github
   pytest:
     runs-on: ubuntu-latest
     strategy:
