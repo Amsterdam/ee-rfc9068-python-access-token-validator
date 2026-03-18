@@ -1,22 +1,26 @@
 # RFC9068 Access Token Validator
-This library provides a means to validate access tokens following the rules layed out in RFC9068.
+This library provides a means to validate access tokens following the rules layed out in
+[RFC9068](https://datatracker.ietf.org/doc/rfc9068/).
 
 ## Rationale
-Both OIDC and OAuth2 do not clearly specify *how* to validate access tokens as a resource server.
-This poses a risk as the implementation of choice might differ across applications and may not be secure.
+Both [OIDC](https://openid.net/specs/openid-authentication-2_0.html) and
+[OAuth2](https://datatracker.ietf.org/doc/rfc6749/) do not clearly specify *how* to validate access tokens
+as a resource server. This poses a risk as the implementation of choice might differ across applications and
+may not be secure.
 
-In order to resolve this issue RFC7662 was published in 2015. This method involves the resource server
-sending the access token to the authorization server to have it verify it. This comes with a big performance
-penalty, as the resource server needs to make its own request to the authorization server everytime it needs
-to validate a token, which basically needs to happen for every authenticated request.
+In order to resolve this issue [RFC7662](https://datatracker.ietf.org/doc/rfc7662/) was published in 2015.
+This method involves the resource server sending the access token to the authorization server to have it
+verify it. This comes with a big performance penalty, as the resource server needs to make its own request to
+the authorization server everytime it needs to validate a token, which basically needs to happen for every
+authenticated request.
 
 To overcome the performance penalty, systems started using access tokens in the form of JSON Web Tokens, which
 can be parsed and validated. However, considering there was no formal definition of what the contents of the
 token should look like, tokens issued by one provider were not necessarily compatible with tokens provided by
 another provider, leading to different implementations of token validation.
 
-RFC9068 aims to overcome that obstacle by providing a specification on what the contents of the access tokens
-should look like and how to validate the access tokens.
+[RFC9068](https://datatracker.ietf.org/doc/rfc9068/) aims to overcome that obstacle by providing a specification
+on what the contents of the access tokens should look like and how to validate the access tokens.
 
 ## Installation
 Install using uv:
@@ -30,7 +34,7 @@ pip install rfc9068
 
 ## Usage
 The validator itself is nothing more than a composition, its dependencies do the actual work.
-That means that the we need to construct the validator, its recommended to use dependency injection to do that,
+That means that the we need to construct the validator, it's recommended to use dependency injection to do that,
 otherwise perhaps implement a factory.
 
 ### Factory example
