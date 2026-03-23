@@ -1,10 +1,11 @@
 import base64
 import json
 from typing import Any
+from unittest.mock import Mock
 
 import httpx
 import pytest
-from jwt import PyJWKClient, PyJWS
+from jwt import PyJWK, PyJWKClient, PyJWS
 
 from rfc9068 import RFC9068AccessTokenValidator
 from rfc9068.parser import AccessTokenParser, InvalidHeaderError, ParsedAccessToken
@@ -14,7 +15,11 @@ from rfc9068.payload import (
     InvalidPayloadError,
     IssuerValidator,
 )
-from rfc9068.signature import PyJwtJWKResolver, PyJwtSignatureValidator
+from rfc9068.signature import (
+    InvalidSignatureError,
+    PyJwtJWKResolver,
+    PyJwtSignatureValidator,
+)
 
 valid_header = ("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiYXQrand0Iiwia2lkIiA6ICJZSmNnekppNVlwR0"
                 "p4QmJ1eUhuNmxPazFYcVpUSWVoQXBubTZTN20ySmNZIn0")
@@ -453,3 +458,68 @@ def test_payload_structure_validation_fails(
         validate(f"{valid_header}.{payload.decode()}.{valid_signature}")
 
     assert str(exc_info.value) == expected_error_message
+
+
+def test_raises_when_signature_invalid() -> None:
+    jwk = PyJWK({
+        "kid": "m9a8iRm4aa0_5ieRgAxQ08F6hqpeXRzoDKK6zuBfKCY",
+        "kty": "RSA",
+        "alg": "RS256",
+        "use": "sig",
+        "x5c": [
+            "MIICnTCCAYUCBgGZYWi1TDANBgkqhkiG9w0BAQsFADASMRAwDgYDVQQDDAdyZmM5MDY4MB4XDTI1MDkxOTA5NTYxNloXDTM1MDkxOTA5NTc1NlowEjEQMA4GA1UEAwwHcmZjOTA2ODCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAJIg6pR+l9akryFutzLMnqdNr0wJ6j/HdgLUbcoycOD4ox3DD192cQKtFUs489uLsdeYmnAZ3p0oAO+e0jxtZ2+uhT2LC1UOSqJ1AOYwrc+UbBYW0WJXpyPwYH+iRv2k7jgG2TI8XFZHtzN5bqpObxoBcM1Tup/YgkiTC0dKYQ3iSFmjtdm5sR7PdfEQ7o3s/wfn7Y9uvC1y1iWzg92pog9SqbCGlK2VSc0iWFSqT+O0BnUEWEWXK34oVUCPE5Z9WmfRfMm4hLOKo650vHS66qxAu1WMDayjJMj4jiLXGJ29Pg1aMBHCwitefzrQUShKTTdfvarwg6WCdOCUMEluCNECAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAeGbM7KuXRMn6szfesMcxcsvU+RixoqXAUTHyKbxRdaMfFXbLSOv+MZa8aFDUzAY12BI2YFAEUmdny+yARbg9sZeJyKQiEkcEnq7vymwM+hNw5nTbRDJLip/gA0nfcfZSeOW5KiMnAZOgO7o+eiLGqJ3sCcTwI2EdCnEdY0R49Pjx2A5jZqTCQFjrM4yFlYJvmSXx608Xpwk5nrPw9JNwdwVBtfW2TX/c8NctbyTrD2Ngrjy04eFh0Cexlixu5b/+AcaCOEBgBh8amOUaHCphh74hqscyzI3Hk70Sa0zx0RZL/PBFBalnvjWzTXCD2BJyiaac4q212N6PzZRYbmqizw==",
+        ],
+        "x5t": "RMEAm3UrHE5BNc_GxvFim1xszhc",
+        "n": "kiDqlH6X1qSvIW63Msyep02vTAnqP8d2AtRtyjJw4PijHcMPX3ZxAq0VSzjz24ux15iacBne"
+             "nSgA757SPG1nb66FPYsLVQ5KonUA5jCtz5RsFhbRYlenI_Bgf6JG_aTuOAbZMjxcVke3M3lu"
+             "qk5vGgFwzVO6n9iCSJMLR0phDeJIWaO12bmxHs918RDujez_B-ftj268LXLWJbOD3amiD1Kp"
+             "sIaUrZVJzSJYVKpP47QGdQRYRZcrfihVQI8Tln1aZ9F8ybiEs4qjrnS8dLrqrEC7VYwNrKMk"
+             "yPiOItcYnb0-DVowEcLCK15_OtBRKEpNN1-9qvCDpYJ04JQwSW4I0Q",
+        "e": "AQAB",
+    })
+
+    jwk_client = Mock(PyJWKClient)
+    jwk_client.get_signing_key.return_value = jwk
+
+    validate = RFC9068AccessTokenValidator(
+        AccessTokenParser(),
+        PyJwtSignatureValidator(
+            PyJwtJWKResolver(
+                jwk_client,
+            ),
+            PyJWS(),
+        ),
+        IssuerValidator(),
+        AudienceValidator(),
+        ExpirationValidator(),
+        ["RS256"],
+        "http://keycloak:8002/realms/rfc9068",
+        "test-audience",
+    )
+
+    with pytest.raises(InvalidSignatureError):
+        validate(f"{valid_header}.{valid_payload}.veryprettyfakesignature")
+
+
+def test_raises_when_key_is_not_public_rsa_key() -> None:
+    jwk = PyJWK({"kty": "oct", "k": ""})
+    jwk_client = Mock(PyJWKClient)
+    jwk_client.get_signing_key.return_value = jwk
+    jwk_resolver = PyJwtJWKResolver(jwk_client)
+
+    validate = RFC9068AccessTokenValidator(
+        AccessTokenParser(),
+        PyJwtSignatureValidator(
+            jwk_resolver,
+            PyJWS(),
+        ),
+        IssuerValidator(),
+        AudienceValidator(),
+        ExpirationValidator(),
+        ["RS256"],
+        "http://keycloak:8002/realms/rfc9068",
+        "test-audience",
+    )
+
+    with pytest.raises(TypeError):
+        validate(f"{valid_header}.{valid_payload}.veryprettyfakesignature")
