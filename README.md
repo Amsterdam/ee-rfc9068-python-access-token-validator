@@ -1,17 +1,17 @@
 # RFC9068 Access Token Validator
-This library provides a means to validate access tokens following the rules layed out in
+This library provides a means to validate access tokens following the rules laid out in
 [RFC9068](https://datatracker.ietf.org/doc/rfc9068/).
 
 ## Rationale
 Both [OIDC](https://openid.net/specs/openid-authentication-2_0.html) and
 [OAuth2](https://datatracker.ietf.org/doc/rfc6749/) do not clearly specify *how* to validate access tokens
 as a resource server. This poses a risk as the implementation of choice might differ across applications and
-may not be secure.
+may be insecure.
 
 In order to resolve this issue [RFC7662](https://datatracker.ietf.org/doc/rfc7662/) was published in 2015.
-This method involves the resource server sending the access token to the authorization server to have it
-verify it. This comes with a big performance penalty, as the resource server needs to make its own request to
-the authorization server everytime it needs to validate a token, which basically needs to happen for every
+This method involves the resource server sending the access token to the authorization server to verify it.
+This comes with a big performance penalty, as the resource server needs to make its own request to the
+authorization server everytime it needs to validate a token, which basically needs to happen for every
 authenticated request.
 
 To overcome the performance penalty, systems started using access tokens in the form of JSON Web Tokens, which
@@ -34,7 +34,7 @@ pip install rfc9068
 
 ## Usage
 The validator itself is nothing more than a composition, its dependencies do the actual work.
-That means that the we need to construct the validator, it's recommended to use dependency injection to do that,
+That means that we need to construct the validator and it's recommended to use dependency injection to do that,
 otherwise perhaps implement a factory.
 
 ### Factory example
