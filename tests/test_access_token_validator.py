@@ -12,6 +12,7 @@ from rfc9068.parser import AccessTokenParser, InvalidHeaderError, ParsedAccessTo
 from rfc9068.payload import (
     AudienceValidator,
     ExpirationValidator,
+    InvalidIssuerError,
     InvalidPayloadError,
     IssuerValidator,
 )
@@ -523,3 +524,23 @@ def test_raises_when_key_is_not_public_rsa_key() -> None:
 
     with pytest.raises(TypeError):
         validate(f"{valid_header}.{valid_payload}.veryprettyfakesignature")
+
+def test_raises_when_issuer_does_not_match(access_token: str) -> None:
+    validate = RFC9068AccessTokenValidator(
+        AccessTokenParser(),
+        PyJwtSignatureValidator(
+            PyJwtJWKResolver(
+                PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
+            ),
+            PyJWS(),
+        ),
+        IssuerValidator(),
+        AudienceValidator(),
+        ExpirationValidator(),
+        ["RS256"],
+        "http://iam:8002/realms/rfc9068",
+        "test-audience",
+    )
+
+    with pytest.raises(InvalidIssuerError):
+        validate(access_token)
