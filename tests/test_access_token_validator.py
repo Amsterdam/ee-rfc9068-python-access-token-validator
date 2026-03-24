@@ -12,6 +12,7 @@ from rfc9068.parser import AccessTokenParser, InvalidHeaderError, ParsedAccessTo
 from rfc9068.payload import (
     AudienceValidator,
     ExpirationValidator,
+    InvalidAudienceError,
     InvalidIssuerError,
     InvalidPayloadError,
     IssuerValidator,
@@ -525,6 +526,7 @@ def test_raises_when_key_is_not_public_rsa_key() -> None:
     with pytest.raises(TypeError):
         validate(f"{valid_header}.{valid_payload}.veryprettyfakesignature")
 
+
 def test_raises_when_issuer_does_not_match(access_token: str) -> None:
     validate = RFC9068AccessTokenValidator(
         AccessTokenParser(),
@@ -544,3 +546,25 @@ def test_raises_when_issuer_does_not_match(access_token: str) -> None:
 
     with pytest.raises(InvalidIssuerError):
         validate(access_token)
+
+
+def test_raises_when_aud_is_str_and_does_not_match(
+        validate: RFC9068AccessTokenValidator,
+) -> None:
+    response = httpx.post(
+        "http://keycloak:8002/realms/rfc9068/protocol/openid-connect/token",
+        data={
+            "client_id": "test-client-with-incorrect-audience",
+            "client_secret": "RQc0VRc40Sx1DnpxcaLwm7CdpN6Cqldo",
+            "grant_type": "client_credentials",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+    token = body.get("access_token")
+    assert isinstance(token, str)
+
+    with pytest.raises(InvalidAudienceError):
+        validate(token)
