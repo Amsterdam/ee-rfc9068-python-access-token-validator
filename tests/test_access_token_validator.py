@@ -12,6 +12,7 @@ from rfc9068.parser import AccessTokenParser, InvalidHeaderError, ParsedAccessTo
 from rfc9068.payload import (
     AudienceValidator,
     ExpirationValidator,
+    ExpiredTokenError,
     InvalidAudienceError,
     InvalidIssuerError,
     InvalidPayloadError,
@@ -639,3 +640,39 @@ def test_passes_when_value_is_list_and_contains_expected_audience() -> None:
     )
 
     validate(token)
+
+
+def test_raises_when_token_is_expired() -> None:
+    response = httpx.post(
+        "http://keycloak:8002/realms/rfc9068/protocol/openid-connect/token",
+        data={
+            "client_id": "test-client-with-very-quickly-expiring-tokens",
+            "client_secret": "yTlRfaEFACAft1dCtTKxRdBGRpkmlplt",
+            "grant_type": "client_credentials",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+    token = body.get("access_token")
+    assert isinstance(token, str)
+
+    validate = RFC9068AccessTokenValidator(
+        AccessTokenParser(),
+        PyJwtSignatureValidator(
+            PyJwtJWKResolver(
+                PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
+            ),
+            PyJWS(),
+        ),
+        IssuerValidator(),
+        AudienceValidator(),
+        ExpirationValidator(),
+        ["RS256"],
+        "http://keycloak:8002/realms/rfc9068",
+        "test-audience",
+    )
+
+    with pytest.raises(ExpiredTokenError):
+        validate(token)
