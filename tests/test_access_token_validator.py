@@ -604,3 +604,38 @@ def test_raises_when_value_is_list_and_does_not_contain_expected_audience() -> N
 
     with pytest.raises(InvalidAudienceError):
         validate(token)
+
+
+def test_passes_when_value_is_list_and_contains_expected_audience() -> None:
+    response = httpx.post(
+        "http://keycloak:8002/realms/rfc9068/protocol/openid-connect/token",
+        data={
+            "client_id": "test-client-with-multiple-audiences",
+            "client_secret": "cxXE8pkLLWgOqcwrfyADMeeUn2wuBAPZ",
+            "grant_type": "client_credentials",
+        },
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+    token = body.get("access_token")
+    assert isinstance(token, str)
+
+    validate = RFC9068AccessTokenValidator(
+        AccessTokenParser(),
+        PyJwtSignatureValidator(
+            PyJwtJWKResolver(
+                PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
+            ),
+            PyJWS(),
+        ),
+        IssuerValidator(),
+        AudienceValidator(),
+        ExpirationValidator(),
+        ["RS256"],
+        "http://keycloak:8002/realms/rfc9068",
+        "test-audience",
+    )
+
+    validate(token)
