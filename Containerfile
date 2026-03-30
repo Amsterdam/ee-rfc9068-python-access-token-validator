@@ -1,5 +1,5 @@
 ARG PYTHON_VERSION
-FROM ghcr.io/astral-sh/uv:0.10-python${PYTHON_VERSION:-3.11}-alpine
+FROM ghcr.io/astral-sh/uv:0.11-python${PYTHON_VERSION:-3.11}-alpine
 
 WORKDIR /app
 
