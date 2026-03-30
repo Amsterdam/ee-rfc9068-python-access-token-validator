@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
 
-from rfc9068.parser import AccessTokenParserInterface
+from rfc9068.parser import AccessTokenParserInterface, ParsedAccessToken
 from rfc9068.payload import (
     AudienceValidatorInterface,
     ExpirationValidatorInterface,
@@ -12,7 +12,7 @@ from rfc9068.signature import SignatureValidatorInterface
 
 class RFC9068AccessTokenValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, access_token: str) -> None: ...
+    def __call__(self, access_token: str) -> ParsedAccessToken: ...
 
 
 class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
@@ -45,7 +45,7 @@ class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
         self._issuer = issuer
         self._audience = audience
 
-    def __call__(self, access_token: str) -> None:
+    def __call__(self, access_token: str) -> ParsedAccessToken:
         parsed_token = self._parse_access_token(access_token)
 
         self._validate_signature(
@@ -58,3 +58,5 @@ class RFC9068AccessTokenValidator(RFC9068AccessTokenValidatorInterface):
         self._validate_issuer(parsed_token.payload, self._issuer)
         self._validate_audience(parsed_token.payload, self._audience)
         self._validate_expiration(parsed_token.payload)
+
+        return parsed_token
