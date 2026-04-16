@@ -4,8 +4,8 @@ from typing import Any
 
 import pytest
 
-from rfc9068.payload import InvalidPayloadError
 from rfc9068.parser import PayloadParser
+from rfc9068.payload import InvalidPayloadError
 
 
 @pytest.mark.parametrize(
