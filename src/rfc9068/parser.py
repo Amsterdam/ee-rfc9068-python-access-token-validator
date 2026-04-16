@@ -36,12 +36,49 @@ class ParsedAccessToken:
     signature: bytes
 
 
+class HeaderParserInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, header: str) -> JWTHeader: ...
+
+
+class HeaderParser(HeaderParserInterface):
+    def __call__(self, header: str) -> JWTHeader:
+        decoded_header = base64.urlsafe_b64decode(header)
+        try:
+            return JWTHeader.model_validate_json(decoded_header)
+        except ValidationError as e:
+            raise InvalidHeaderError(str(e)) from e
+
+
+class PadderInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, value: str) -> str: ...
+
+
+class Padder(PadderInterface):
+    def __call__(self, value: str) -> str:
+        padding_required = 4 - (len(value) % 4)
+        value += "=" * padding_required
+        return value
+
+
 class AccessTokenParserInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, access_token: str) -> ParsedAccessToken: ...
 
 
 class AccessTokenParser(AccessTokenParserInterface):
+    _validate_header: HeaderParserInterface
+    _add_padding: PadderInterface
+
+    def __init__(
+            self,
+            header_parser: HeaderParserInterface,
+            padder: PadderInterface,
+    ) -> None:
+        self._validate_header = header_parser
+        self._add_padding = padder
+
     def __call__(self, access_token: str) -> ParsedAccessToken:
         raw_header, raw_payload, signature = access_token.split(".")
 
@@ -49,11 +86,7 @@ class AccessTokenParser(AccessTokenParserInterface):
         padded_payload = self._add_padding(raw_payload)
         padded_signature = self._add_padding(signature)
 
-        decoded_header = base64.urlsafe_b64decode(padded_header)
-        try:
-            header = JWTHeader.model_validate_json(decoded_header)
-        except ValidationError as e:
-            raise InvalidHeaderError(str(e)) from e
+        header = self._validate_header(padded_header)
 
         decoded_payload = base64.urlsafe_b64decode(padded_payload)
         try:
@@ -70,8 +103,3 @@ class AccessTokenParser(AccessTokenParserInterface):
             raw_payload,
             decoded_signature,
         )
-
-    def _add_padding(self, value: str) -> str:
-        padding_required = 4 - (len(value) % 4)
-        value += "=" * padding_required
-        return value
