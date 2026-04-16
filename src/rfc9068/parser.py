@@ -68,7 +68,7 @@ class AccessTokenParserInterface(metaclass=ABCMeta):
 
 
 class AccessTokenParser(AccessTokenParserInterface):
-    _validate_header: HeaderParserInterface
+    _parse_header: HeaderParserInterface
     _add_padding: PadderInterface
 
     def __init__(
@@ -76,7 +76,7 @@ class AccessTokenParser(AccessTokenParserInterface):
             header_parser: HeaderParserInterface,
             padder: PadderInterface,
     ) -> None:
-        self._validate_header = header_parser
+        self._parse_header = header_parser
         self._add_padding = padder
 
     def __call__(self, access_token: str) -> ParsedAccessToken:
@@ -86,7 +86,7 @@ class AccessTokenParser(AccessTokenParserInterface):
         padded_payload = self._add_padding(raw_payload)
         padded_signature = self._add_padding(signature)
 
-        header = self._validate_header(padded_header)
+        header = self._parse_header(padded_header)
 
         decoded_payload = base64.urlsafe_b64decode(padded_payload)
         try:
