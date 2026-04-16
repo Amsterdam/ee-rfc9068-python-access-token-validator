@@ -1,4 +1,4 @@
-from src.rfc9068.parser import Padder
+from rfc9068.parser import Padder
 
 valid_header = ("eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiYXQrand0Iiwia2lkIiA6ICJZSmNnekppNVlwR0"
                 "p4QmJ1eUhuNmxPazFYcVpUSWVoQXBubTZTN20ySmNZIn0")

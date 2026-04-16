@@ -1,7 +1,7 @@
 import pytest
 
 from rfc9068.signature import InvalidSignatureError
-from src.rfc9068.parser import SignatureParser
+from rfc9068.parser import SignatureParser
 
 
 def test_parse_signature() -> None:
