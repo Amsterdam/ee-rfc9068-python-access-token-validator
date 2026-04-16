@@ -8,7 +8,15 @@ import pytest
 from jwt import PyJWK, PyJWKClient, PyJWS
 
 from rfc9068 import RFC9068AccessTokenValidator
-from rfc9068.parser import AccessTokenParser, InvalidHeaderError, ParsedAccessToken
+from rfc9068.parser import (
+    AccessTokenParser,
+    HeaderParser,
+    InvalidHeaderError,
+    Padder,
+    ParsedAccessToken,
+    PayloadParser,
+    SignatureParser,
+)
 from rfc9068.payload import (
     AudienceValidator,
     ExpirationValidator,
@@ -73,7 +81,12 @@ def access_token() -> str:
 @pytest.fixture
 def validate() -> RFC9068AccessTokenValidator:
     return RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             PyJwtJWKResolver(
                 PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
@@ -91,7 +104,12 @@ def validate() -> RFC9068AccessTokenValidator:
 
 def test_access_token_validator_passes_with_valid_token(access_token: str) -> None:
     validate = RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             PyJwtJWKResolver(
                 PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
@@ -485,7 +503,12 @@ def test_raises_when_signature_invalid() -> None:
     jwk_client.get_signing_key.return_value = jwk
 
     validate = RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             PyJwtJWKResolver(
                 jwk_client,
@@ -511,7 +534,12 @@ def test_raises_when_key_is_not_public_rsa_key() -> None:
     jwk_resolver = PyJwtJWKResolver(jwk_client)
 
     validate = RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             jwk_resolver,
             PyJWS(),
@@ -530,7 +558,12 @@ def test_raises_when_key_is_not_public_rsa_key() -> None:
 
 def test_raises_when_issuer_does_not_match(access_token: str) -> None:
     validate = RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             PyJwtJWKResolver(
                 PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
@@ -588,7 +621,12 @@ def test_raises_when_value_is_list_and_does_not_contain_expected_audience() -> N
     assert isinstance(token, str)
 
     validate = RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             PyJwtJWKResolver(
                 PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
@@ -624,7 +662,12 @@ def test_passes_when_value_is_list_and_contains_expected_audience() -> None:
     assert isinstance(token, str)
 
     validate = RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             PyJwtJWKResolver(
                 PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
@@ -659,7 +702,12 @@ def test_raises_when_token_is_expired() -> None:
     assert isinstance(token, str)
 
     validate = RFC9068AccessTokenValidator(
-        AccessTokenParser(),
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
         PyJwtSignatureValidator(
             PyJwtJWKResolver(
                 PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
