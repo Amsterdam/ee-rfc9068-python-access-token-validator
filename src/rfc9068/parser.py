@@ -62,22 +62,39 @@ class Padder(PadderInterface):
         return value
 
 
+class PayloadParserInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, payload: str) -> Payload: ...
+
+
+class PayloadParser(PayloadParserInterface):
+    def __call__(self, payload: str) -> Payload:
+        decoded_payload = base64.urlsafe_b64decode(payload).decode()
+        try:
+            return Payload.model_validate_json(decoded_payload)
+        except ValidationError as e:
+            raise InvalidPayloadError(str(e)) from e
+
+
 class AccessTokenParserInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, access_token: str) -> ParsedAccessToken: ...
 
 
 class AccessTokenParser(AccessTokenParserInterface):
-    _parse_header: HeaderParserInterface
     _add_padding: PadderInterface
+    _parse_header: HeaderParserInterface
+    _parse_payload: PayloadParserInterface
 
     def __init__(
-            self,
-            header_parser: HeaderParserInterface,
-            padder: PadderInterface,
+        self,
+        padder: PadderInterface,
+        header_parser: HeaderParserInterface,
+        payload_parser: PayloadParserInterface,
     ) -> None:
-        self._parse_header = header_parser
         self._add_padding = padder
+        self._parse_header = header_parser
+        self._parse_payload = payload_parser
 
     def __call__(self, access_token: str) -> ParsedAccessToken:
         raw_header, raw_payload, signature = access_token.split(".")
@@ -87,12 +104,7 @@ class AccessTokenParser(AccessTokenParserInterface):
         padded_signature = self._add_padding(signature)
 
         header = self._parse_header(padded_header)
-
-        decoded_payload = base64.urlsafe_b64decode(padded_payload)
-        try:
-            payload = Payload.model_validate_json(decoded_payload)
-        except ValidationError as e:
-            raise InvalidPayloadError(str(e)) from e
+        payload = self._parse_payload(padded_payload)
 
         decoded_signature = base64.urlsafe_b64decode(padded_signature)
 
