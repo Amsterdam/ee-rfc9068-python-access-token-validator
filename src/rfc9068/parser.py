@@ -76,6 +76,21 @@ class PayloadParser(PayloadParserInterface):
             raise InvalidPayloadError(str(e)) from e
 
 
+class SignatureParserInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, signature: str) -> bytes: ...
+
+
+class SignatureParser(SignatureParserInterface):
+    def __call__(self, signature: str) -> bytes:
+        from rfc9068.signature import InvalidSignatureError  # noqa: PLC0415
+
+        try:
+            return base64.urlsafe_b64decode(signature)
+        except Exception as e:
+            raise InvalidSignatureError(str(e)) from e
+
+
 class AccessTokenParserInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, access_token: str) -> ParsedAccessToken: ...
@@ -85,16 +100,19 @@ class AccessTokenParser(AccessTokenParserInterface):
     _add_padding: PadderInterface
     _parse_header: HeaderParserInterface
     _parse_payload: PayloadParserInterface
+    _parse_signature: SignatureParserInterface
 
     def __init__(
         self,
         padder: PadderInterface,
         header_parser: HeaderParserInterface,
         payload_parser: PayloadParserInterface,
+        signature_parser: SignatureParserInterface,
     ) -> None:
         self._add_padding = padder
         self._parse_header = header_parser
         self._parse_payload = payload_parser
+        self._parse_signature = signature_parser
 
     def __call__(self, access_token: str) -> ParsedAccessToken:
         raw_header, raw_payload, signature = access_token.split(".")
@@ -106,7 +124,7 @@ class AccessTokenParser(AccessTokenParserInterface):
         header = self._parse_header(padded_header)
         payload = self._parse_payload(padded_payload)
 
-        decoded_signature = base64.urlsafe_b64decode(padded_signature)
+        decoded_signature = self._parse_signature(padded_signature)
 
         return ParsedAccessToken(
             header,
