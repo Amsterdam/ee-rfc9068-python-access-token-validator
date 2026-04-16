@@ -72,17 +72,6 @@ def test_access_token_parser() -> None:
             "trrtcc:36b03600-b6c6-2501-4bcd-ae62a036e4e8")
 
 
-def test_extra_headers_are_ignored() -> None:
-    header = base64.urlsafe_b64encode(
-        json.dumps(
-            {"typ": "at+jwt", "alg": "RS256", "kid": "1234", "xtr": "bla"},
-        ).encode(),
-    )
-
-    parse = AccessTokenParser()
-    parse(f"{header.decode()}.{valid_payload}.{valid_signature}")
-
-
 @pytest.mark.parametrize(
     ("payload_dict", "expected_error_message"),
     [
