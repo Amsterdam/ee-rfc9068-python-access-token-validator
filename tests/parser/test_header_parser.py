@@ -255,4 +255,4 @@ def test_extra_headers_are_ignored(parse: HeaderParser) -> None:
         ).encode(),
     )
 
-    parse(header)
+    parse(header.decode())
