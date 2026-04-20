@@ -36,12 +36,84 @@ class ParsedAccessToken:
     signature: bytes
 
 
+class HeaderParserInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, header: str) -> JWTHeader: ...
+
+
+class HeaderParser(HeaderParserInterface):
+    def __call__(self, header: str) -> JWTHeader:
+        decoded_header = base64.urlsafe_b64decode(header)
+        try:
+            return JWTHeader.model_validate_json(decoded_header)
+        except ValidationError as e:
+            raise InvalidHeaderError(str(e)) from e
+
+
+class PadderInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, value: str) -> str: ...
+
+
+class Padder(PadderInterface):
+    def __call__(self, value: str) -> str:
+        padding_required = 4 - (len(value) % 4)
+        value += "=" * padding_required
+        return value
+
+
+class PayloadParserInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, payload: str) -> Payload: ...
+
+
+class PayloadParser(PayloadParserInterface):
+    def __call__(self, payload: str) -> Payload:
+        decoded_payload = base64.urlsafe_b64decode(payload).decode()
+        try:
+            return Payload.model_validate_json(decoded_payload)
+        except ValidationError as e:
+            raise InvalidPayloadError(str(e)) from e
+
+
+class SignatureParserInterface(metaclass=ABCMeta):
+    @abstractmethod
+    def __call__(self, signature: str) -> bytes: ...
+
+
+class SignatureParser(SignatureParserInterface):
+    def __call__(self, signature: str) -> bytes:
+        from rfc9068.signature import InvalidSignatureError  # noqa: PLC0415
+
+        try:
+            return base64.urlsafe_b64decode(signature)
+        except Exception as e:
+            raise InvalidSignatureError(str(e)) from e
+
+
 class AccessTokenParserInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, access_token: str) -> ParsedAccessToken: ...
 
 
 class AccessTokenParser(AccessTokenParserInterface):
+    _add_padding: PadderInterface
+    _parse_header: HeaderParserInterface
+    _parse_payload: PayloadParserInterface
+    _parse_signature: SignatureParserInterface
+
+    def __init__(
+        self,
+        padder: PadderInterface,
+        header_parser: HeaderParserInterface,
+        payload_parser: PayloadParserInterface,
+        signature_parser: SignatureParserInterface,
+    ) -> None:
+        self._add_padding = padder
+        self._parse_header = header_parser
+        self._parse_payload = payload_parser
+        self._parse_signature = signature_parser
+
     def __call__(self, access_token: str) -> ParsedAccessToken:
         raw_header, raw_payload, signature = access_token.split(".")
 
@@ -49,19 +121,10 @@ class AccessTokenParser(AccessTokenParserInterface):
         padded_payload = self._add_padding(raw_payload)
         padded_signature = self._add_padding(signature)
 
-        decoded_header = base64.urlsafe_b64decode(padded_header)
-        try:
-            header = JWTHeader.model_validate_json(decoded_header)
-        except ValidationError as e:
-            raise InvalidHeaderError(str(e)) from e
+        header = self._parse_header(padded_header)
+        payload = self._parse_payload(padded_payload)
 
-        decoded_payload = base64.urlsafe_b64decode(padded_payload)
-        try:
-            payload = Payload.model_validate_json(decoded_payload)
-        except ValidationError as e:
-            raise InvalidPayloadError(str(e)) from e
-
-        decoded_signature = base64.urlsafe_b64decode(padded_signature)
+        decoded_signature = self._parse_signature(padded_signature)
 
         return ParsedAccessToken(
             header,
@@ -70,8 +133,3 @@ class AccessTokenParser(AccessTokenParserInterface):
             raw_payload,
             decoded_signature,
         )
-
-    def _add_padding(self, value: str) -> str:
-        padding_required = 4 - (len(value) % 4)
-        value += "=" * padding_required
-        return value
