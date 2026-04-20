@@ -114,8 +114,8 @@ strictly formatted using the format specified in RFC9068.
 However, unfortunately not all providers fully implement the specification
 (looking at you Microsoft). In order to be able to use this package with
 Entra ID for example we provide a special "compat" header parser.
-In this case we need that because Entra ID access tokens always have the
-value "JWT" in the `typ` header, whereas RFC9068 specifies that the value
+In this case we need that because [Entra ID access tokens always have the
+value "JWT" in the `typ` header](https://learn.microsoft.com/en-us/entra/identity-platform/access-token-claims-reference#header-claims), whereas RFC9068 specifies that the value
 must be "at+jwt" or "application/at+jwt". This helps differentiate between
 different kinds of tokens, ID tokens would have the value "it+jwt" or
 "application/it+jwt", for example.
