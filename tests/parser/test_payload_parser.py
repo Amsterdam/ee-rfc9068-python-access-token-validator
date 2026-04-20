@@ -23,7 +23,7 @@ from rfc9068.payload import InvalidPayloadError
             },
             "1 validation error for Payload\niss\n  Field required [type=missing, inpu"
             "t_value={'exp': 123456, 'aud': 'a...': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.12"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
             "/v/missing",
         ),
         # exp missing
@@ -38,7 +38,7 @@ from rfc9068.payload import InvalidPayloadError
             },
             "1 validation error for Payload\nexp\n  Field required [type=missing, inpu"
             "t_value={'iss': 'issuer', 'aud': ...': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.12"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
             "/v/missing",
         ),
         # aud missing
@@ -53,7 +53,7 @@ from rfc9068.payload import InvalidPayloadError
             },
             "1 validation error for Payload\naud\n  Field required [type=missing, inpu"
             "t_value={'iss': 'issuer', 'exp': ...': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.12"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
             "/v/missing",
         ),
         # sub missing
@@ -68,7 +68,7 @@ from rfc9068.payload import InvalidPayloadError
             },
             "1 validation error for Payload\nsub\n  Field required [type=missing, inpu"
             "t_value={'iss': 'issuer', 'exp': ...': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.12"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
             "/v/missing",
         ),
         # client_id missing
@@ -84,7 +84,7 @@ from rfc9068.payload import InvalidPayloadError
             "1 validation error for Payload\nclient_id\n  Field required [type=missing"
             ", input_value={'iss': 'issuer', 'exp': ...': 'unique_id_of_token'}, input"
             "_type=dict]\n    For further information visit https://errors.pydantic.de"
-            "v/2.12/v/missing",
+            "v/2.13/v/missing",
         ),
         # iat missing
         (
@@ -98,7 +98,7 @@ from rfc9068.payload import InvalidPayloadError
             },
             "1 validation error for Payload\niat\n  Field required [type=missing, inpu"
             "t_value={'iss': 'issuer', 'exp': ...': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.12"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
             "/v/missing",
         ),
         # jti missing
@@ -113,7 +113,7 @@ from rfc9068.payload import InvalidPayloadError
             },
             "1 validation error for Payload\njti\n  Field required [type=missing, inpu"
             "t_value={'iss': 'issuer', 'exp': ...lient_id', 'iat': 12345}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.12"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
             "/v/missing",
         ),
     ],
