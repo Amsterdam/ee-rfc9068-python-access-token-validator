@@ -7,7 +7,7 @@ from jwt import InvalidSignatureError as PyJWTInvalidSignatureError
 from jwt import PyJWKClient, PyJWS
 
 from rfc9068.core import InvalidTokenError
-from rfc9068.parser import JWTHeader
+from rfc9068.parser import BaseJWTHeader
 
 
 class JWKResolverInterface(metaclass=ABCMeta):
@@ -37,7 +37,7 @@ class SignatureValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(
         self,
-        header: JWTHeader,
+        header: BaseJWTHeader,
         raw_header: str,
         raw_payload: str,
         signature: bytes,
@@ -56,7 +56,7 @@ class PyJwtSignatureValidator(SignatureValidatorInterface):
 
     def __call__(
         self,
-        header: JWTHeader,
+        header: BaseJWTHeader,
         raw_header: str,
         raw_payload: str,
         signature: bytes,

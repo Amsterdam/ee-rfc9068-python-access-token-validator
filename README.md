@@ -40,38 +40,49 @@ otherwise perhaps implement a factory.
 ### Factory example
 ```python
 from rfc9068 import RFC9068AccessTokenValidator, RFC9068AccessTokenValidatorInterface
-from rfc9068.parser import AccessTokenParser
+from rfc9068.parser import (
+    AccessTokenParser,
+    HeaderParser,
+    Padder,
+    PayloadParser,
+    SignatureParser,
+)
 from rfc9068.payload import (
-  IssuerValidator,
-  AudienceValidator,
-  ExpirationValidator
+    IssuerValidator,
+    AudienceValidator,
+    ExpirationValidator
 )
 from rfc9068.signature import PyJwtSignatureValidator, PyJwtJWKResolver
 from jwt import PyJWKClient, PyJWS
 
 class ValidatorFactory:
-  def __call__(
-    self,
-    jwks_url: str,
-    issuer: str,
-    audience: str,
-    algorithms: list[str] = ["RS256"],
-  ): RFC9068AccessTokenValidatorInterface:
-    return RFC9068AccessTokenValidator(
-        AccessTokenParser(),
-        PyJwtSignatureValidator(
-            PyJwtJWKResolver(
-                PyJWKClient(jwks_url),
+    def __call__(
+        self,
+        jwks_url: str,
+        issuer: str,
+        audience: str,
+        algorithms: list[str] = ["RS256"],
+    ) -> RFC9068AccessTokenValidatorInterface:
+        return RFC9068AccessTokenValidator(
+            AccessTokenParser(
+                Padder(),
+                HeaderParser(),
+                PayloadParser(),
+                SignatureParser(),
             ),
-            PyJWS(),
-        ),
-        IssuerValidator(),
-        AudienceValidator(),
-        ExpirationValidator(),
-        algorithms,
-        issuer,
-        audience,
-    )
+            PyJwtSignatureValidator(
+                PyJwtJWKResolver(
+                    PyJWKClient(jwks_url),
+                ),
+                PyJWS(),
+            ),
+            IssuerValidator(),
+            AudienceValidator(),
+            ExpirationValidator(),
+            algorithms,
+            issuer,
+            audience,
+        )
 
 factory = ValidatorFactory()
 validate = factory(
@@ -96,6 +107,67 @@ except InvalidTokenError as e:
 
 # When no exceptions are raised the token is valid
 ```
+
+## Compatibility
+The default implementation as seen above, works for access tokens that are
+strictly formatted using the format specified in RFC9068.
+However, unfortunately not all providers fully implement the specification
+(looking at you Microsoft). In order to be able to use this package with
+Entra ID for example we provide a special "compat" header parser.
+In this case we need that because [Entra ID access tokens always have the
+value "JWT" in the `typ` header](https://learn.microsoft.com/en-us/entra/identity-platform/access-token-claims-reference#header-claims), whereas RFC9068 specifies that the value
+must be "at+jwt" or "application/at+jwt". This helps differentiate between
+different kinds of tokens, ID tokens would have the value "it+jwt" or
+"application/it+jwt", for example.
+
+Because the risk of that is acceptable, we provide the following solution:
+```python
+from jwt import PyJWKClient, PyJWS
+
+from rfc9068 import RFC9068AccessTokenValidator
+from rfc9068.compat import HeaderParser
+from rfc9068.parser import (
+    AccessTokenParser,
+    InvalidHeaderError,
+    Padder,
+    ParsedAccessToken,
+    PayloadParser,
+    SignatureParser,
+)
+from rfc9068.payload import (
+    AudienceValidator,
+    ExpirationValidator,
+    IssuerValidator,
+)
+from rfc9068.signature import (
+    PyJwtJWKResolver,
+    PyJwtSignatureValidator,
+)
+
+
+validate = RFC9068AccessTokenValidator(
+        AccessTokenParser(
+            Padder(),
+            HeaderParser(),
+            PayloadParser(),
+            SignatureParser(),
+        ),
+        PyJwtSignatureValidator(
+            PyJwtJWKResolver(
+                PyJWKClient("http://keycloak:8002/realms/rfc9068/protocol/openid-connect/certs"),
+            ),
+            PyJWS(),
+        ),
+        IssuerValidator(),
+        AudienceValidator(),
+        ExpirationValidator(),
+        ["RS256"],
+        "http://keycloak:8002/realms/rfc9068",
+        "test-audience",
+    )
+```
+As you can see, this is almost the same as the factory example above,
+except the import of `HeaderParser`, which now comes from `rfc9068.compat`.
 
 ## Development
 For development of this package we provide a container setup.
