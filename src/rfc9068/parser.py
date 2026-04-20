@@ -21,15 +21,19 @@ class ValidAlgHeaderValues(StrEnum):
     RS256 = "RS256"
 
 
-class JWTHeader(BaseModel):
-    typ: ValidTypHeaderValues
+class BaseJWTHeader(BaseModel):
+    typ: StrEnum
     alg: ValidAlgHeaderValues
     kid: str
 
 
+class JWTHeader(BaseJWTHeader):
+    typ: ValidTypHeaderValues
+
+
 @dataclass
 class ParsedAccessToken:
-    header: JWTHeader
+    header: BaseJWTHeader
     raw_header: str
     payload: Payload
     raw_payload: str
@@ -38,7 +42,7 @@ class ParsedAccessToken:
 
 class HeaderParserInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, header: str) -> JWTHeader: ...
+    def __call__(self, header: str) -> BaseJWTHeader: ...
 
 
 class HeaderParser(HeaderParserInterface):
