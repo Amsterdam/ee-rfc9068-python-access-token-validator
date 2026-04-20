@@ -1,6 +1,6 @@
 [project]
 name = "rfc9068"
-version = "0.1.0"
+version = "1.0.0"
 description = "Validates OIDC/OAuth2 access tokens following RC9068"
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
