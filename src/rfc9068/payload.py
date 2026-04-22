@@ -6,17 +6,19 @@ from pydantic import BaseModel
 from rfc9068.core import InvalidTokenError
 
 
-class Payload(BaseModel):
+class BasePayload(BaseModel):
     model_config = {"extra": "allow"}
 
     iss: str
     exp: int
     aud: str | list[str]
     sub: str
-    client_id: str
     iat: int
-    jti: str
 
+
+class Payload(BasePayload):
+    client_id: str
+    jti: str
 
 class InvalidPayloadError(InvalidTokenError): ...
 

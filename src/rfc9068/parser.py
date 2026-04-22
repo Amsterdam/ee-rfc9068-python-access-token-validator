@@ -6,7 +6,7 @@ from enum import StrEnum
 from pydantic import BaseModel, ValidationError
 
 from rfc9068.core import InvalidTokenError
-from rfc9068.payload import InvalidPayloadError, Payload
+from rfc9068.payload import InvalidPayloadError, Payload, BasePayload
 
 
 class InvalidHeaderError(InvalidTokenError): ...
@@ -68,7 +68,7 @@ class Padder(PadderInterface):
 
 class PayloadParserInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, payload: str) -> Payload: ...
+    def __call__(self, payload: str) -> BasePayload: ...
 
 
 class PayloadParser(PayloadParserInterface):
