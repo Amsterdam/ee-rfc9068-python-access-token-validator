@@ -96,13 +96,15 @@ class PayloadParserInterface(metaclass=ABCMeta):
     def __call__(self, payload: str) -> Payload: ...
 
 
-class PayloadParser(PayloadParserInterface):
-    def __call__(self, payload: str) -> Payload:
-        decoded_payload = base64.urlsafe_b64decode(payload).decode()
-        try:
-            return Payload.model_validate_json(decoded_payload)
-        except ValidationError as e:
-            raise InvalidPayloadError(str(e)) from e
+class PayloadParser(
+    AbstractParser[Payload, InvalidPayloadError],
+    PayloadParserInterface,
+):
+    def get_model_type(self) -> type[Payload]:
+        return Payload
+
+    def get_exception_type(self) -> type[InvalidPayloadError]:
+        return InvalidPayloadError
 
 
 class SignatureParserInterface(metaclass=ABCMeta):
