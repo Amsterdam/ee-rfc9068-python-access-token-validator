@@ -2,6 +2,7 @@ import base64
 from abc import ABCMeta, abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -40,18 +41,42 @@ class ParsedAccessToken:
     signature: bytes
 
 
+T = TypeVar("T", bound=BaseModel)
+E = TypeVar("E", bound=Exception)
+
+class AbstractParser(Generic[T, E], metaclass=ABCMeta):
+    @abstractmethod
+    def get_model_type(self) -> type[T]: ...
+
+    @abstractmethod
+    def get_exception_type(self) -> type[E]: ...
+
+    def __call__(self, parseable: str) -> T:
+        decoded = base64.urlsafe_b64decode(parseable)
+
+        model_type = self.get_model_type()
+
+        try:
+            return model_type.model_validate_json(decoded)
+        except ValidationError as e:
+            exception_type = self.get_exception_type()
+            raise exception_type(str(e)) from e
+
+
 class HeaderParserInterface(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self, header: str) -> BaseJWTHeader: ...
 
 
-class HeaderParser(HeaderParserInterface):
-    def __call__(self, header: str) -> JWTHeader:
-        decoded_header = base64.urlsafe_b64decode(header)
-        try:
-            return JWTHeader.model_validate_json(decoded_header)
-        except ValidationError as e:
-            raise InvalidHeaderError(str(e)) from e
+class HeaderParser(
+    AbstractParser[JWTHeader, InvalidHeaderError],
+    HeaderParserInterface,
+):
+    def get_model_type(self) -> type[JWTHeader]:
+        return JWTHeader
+
+    def get_exception_type(self) -> type[InvalidHeaderError]:
+        return InvalidHeaderError
 
 
 class PadderInterface(metaclass=ABCMeta):
@@ -71,13 +96,15 @@ class PayloadParserInterface(metaclass=ABCMeta):
     def __call__(self, payload: str) -> Payload: ...
 
 
-class PayloadParser(PayloadParserInterface):
-    def __call__(self, payload: str) -> Payload:
-        decoded_payload = base64.urlsafe_b64decode(payload).decode()
-        try:
-            return Payload.model_validate_json(decoded_payload)
-        except ValidationError as e:
-            raise InvalidPayloadError(str(e)) from e
+class PayloadParser(
+    AbstractParser[Payload, InvalidPayloadError],
+    PayloadParserInterface,
+):
+    def get_model_type(self) -> type[Payload]:
+        return Payload
+
+    def get_exception_type(self) -> type[InvalidPayloadError]:
+        return InvalidPayloadError
 
 
 class SignatureParserInterface(metaclass=ABCMeta):
