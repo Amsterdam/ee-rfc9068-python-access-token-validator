@@ -1,24 +1,24 @@
 from abc import ABCMeta, abstractmethod
 from datetime import UTC, datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, AnyHttpUrl, StrictStr, StrictInt
 
 from rfc9068.core import InvalidTokenError
 
 
 class BasePayload(BaseModel):
-    iss: str
-    aud: str | list[str]
-    sub: str
-    exp: int
-    iat: int
+    iss: AnyHttpUrl
+    aud: StrictStr | list[StrictStr]
+    sub: StrictStr
+    exp: StrictInt
+    iat: StrictInt
 
 
 class Payload(BasePayload):
     model_config = {"extra": "allow"}
 
-    client_id: str
-    jti: str
+    client_id: StrictStr
+    jti: StrictStr
 
 
 class InvalidPayloadError(InvalidTokenError): ...
@@ -35,7 +35,7 @@ class IssuerValidatorInterface(metaclass=ABCMeta):
 
 class IssuerValidator(IssuerValidatorInterface):
     def __call__(self, claims: BasePayload, expected_issuer: str) -> None:
-        issuer = claims.iss
+        issuer = str(claims.iss)
         if issuer != expected_issuer:
             msg = f"Expected issuer '{expected_issuer}', got '{issuer}'!"
             raise InvalidIssuerError(msg)
