@@ -6,15 +6,18 @@ from pydantic import BaseModel
 from rfc9068.core import InvalidTokenError
 
 
-class Payload(BaseModel):
-    model_config = {"extra": "allow"}
-
+class BasePayload(BaseModel):
     iss: str
-    exp: int
     aud: str | list[str]
     sub: str
-    client_id: str
+    exp: int
     iat: int
+
+
+class Payload(BasePayload):
+    model_config = {"extra": "allow"}
+
+    client_id: str
     jti: str
 
 
@@ -26,12 +29,12 @@ class InvalidIssuerError(InvalidPayloadError): ...
 
 class IssuerValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, claims: Payload, expected_issuer: str) -> None:
+    def __call__(self, claims: BasePayload, expected_issuer: str) -> None:
         """Implementations should raise InvalidIssuerError if invalid."""
 
 
 class IssuerValidator(IssuerValidatorInterface):
-    def __call__(self, claims: Payload, expected_issuer: str) -> None:
+    def __call__(self, claims: BasePayload, expected_issuer: str) -> None:
         issuer = claims.iss
         if issuer != expected_issuer:
             msg = f"Expected issuer '{expected_issuer}', got '{issuer}'!"
@@ -43,12 +46,12 @@ class InvalidAudienceError(InvalidPayloadError): ...
 
 class AudienceValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, claims: Payload, expected_audience: str) -> None:
+    def __call__(self, claims: BasePayload, expected_audience: str) -> None:
         """Implementations should raise InvalidAudienceError if invalid."""
 
 
 class AudienceValidator(AudienceValidatorInterface):
-    def __call__(self, claims: Payload, expected_audience: str) -> None:
+    def __call__(self, claims: BasePayload, expected_audience: str) -> None:
         audience = claims.aud
         if isinstance(audience, str) and audience != expected_audience:
             msg = f"Expected audience '{expected_audience}', got '{audience}'!"
@@ -65,12 +68,12 @@ class ExpiredTokenError(InvalidPayloadError): ...
 
 class ExpirationValidatorInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, claims: Payload) -> None:
+    def __call__(self, claims: BasePayload) -> None:
         """Implementations should raise ExpiredTokenError if invalid."""
 
 
 class ExpirationValidator(ExpirationValidatorInterface):
-    def __call__(self, claims: Payload) -> None:
+    def __call__(self, claims: BasePayload) -> None:
         now = datetime.now(UTC).timestamp()
         exp = claims.exp
         if exp <= now:
