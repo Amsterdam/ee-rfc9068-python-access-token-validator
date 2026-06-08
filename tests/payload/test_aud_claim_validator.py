@@ -7,7 +7,7 @@ def test_raises_when_value_is_str_and_does_not_match() -> None:
     validate = AudienceValidator()
     with pytest.raises(InvalidAudienceError):
         validate(Payload(
-            iss="iss",
+            iss="https://example.com",  # type: ignore[arg-type]
             exp=1234,
             aud="test_audience",
             sub="sub",
@@ -21,7 +21,7 @@ def test_raises_when_value_is_list_and_does_not_contain_expected_audience() -> N
     validate = AudienceValidator()
     with pytest.raises(InvalidAudienceError):
         validate(Payload(
-            iss="iss",
+            iss="https://example.com",  # type: ignore[arg-type]
             exp=1234,
             aud=["test_audience"],
             sub="sub",
@@ -34,7 +34,7 @@ def test_raises_when_value_is_list_and_does_not_contain_expected_audience() -> N
 def test_passes_when_value_is_str_and_matches() -> None:
     validate = AudienceValidator()
     validate(Payload(
-        iss="iss",
+        iss="https://example.com",  # type: ignore[arg-type]
         exp=1234,
         aud="test_audience",
         sub="sub",
@@ -47,7 +47,7 @@ def test_passes_when_value_is_str_and_matches() -> None:
 def test_passes_when_value_is_list_and_contains_expected_audience() -> None:
     validate = AudienceValidator()
     validate(Payload(
-        iss="iss",
+        iss="https://example.com",  # type: ignore[arg-type]
         exp=1234,
         aud=["test_audience"],
         sub="sub",
