@@ -10,7 +10,7 @@ def test_raises_when_token_is_expired() -> None:
     validate = ExpirationValidator()
     with pytest.raises(ExpiredTokenError):
         validate(Payload(
-            iss="iss",
+            iss="https://example.com",  # type: ignore[arg-type]
             exp=int(a_while_ago),
             aud=["aud"],
             sub="sub",
@@ -24,7 +24,7 @@ def test_passes_when_token_is_not_expired() -> None:
     a_bit_in_the_future = datetime.now(UTC).timestamp() + 2000
     validate = ExpirationValidator()
     validate(Payload(
-        iss="iss",
+        iss="https://example.com",  # type: ignore[arg-type]
         exp=int(a_bit_in_the_future),
         aud=["aud"],
         sub="sub",
