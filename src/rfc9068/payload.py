@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from datetime import UTC, datetime
 
-from pydantic import BaseModel, AnyHttpUrl, StrictStr, StrictInt
+from pydantic import AnyHttpUrl, BaseModel, StrictInt, StrictStr
 
 from rfc9068.core import InvalidTokenError
 
