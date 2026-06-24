@@ -10,6 +10,9 @@ from rfc9068.core import InvalidTokenError
 from rfc9068.payload import InvalidPayloadError, Payload
 
 
+class UnparseableTokenError(InvalidTokenError): ...
+
+
 class InvalidHeaderError(InvalidTokenError): ...
 
 
@@ -146,7 +149,12 @@ class AccessTokenParser(AccessTokenParserInterface):
         self._parse_signature = signature_parser
 
     def __call__(self, access_token: str) -> ParsedAccessToken:
-        raw_header, raw_payload, signature = access_token.split(".")
+        split_token = access_token.split(".")
+        if len(split_token) != 3:  # noqa: PLR2004
+            msg = "Invalid token format!"
+            raise UnparseableTokenError(msg)
+
+        raw_header, raw_payload, signature = split_token
 
         padded_header = self._add_padding(raw_header)
         padded_payload = self._add_padding(raw_payload)
