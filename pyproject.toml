@@ -9,7 +9,7 @@ dependencies = [
     "pyjwt[crypto]>=2.10.1",
 ]
 urls = {
-    "repository": "https://github.com/Amsterdam/ee-rfc9068-python-access-token-validator",
+    "repository" = "https://github.com/Amsterdam/ee-rfc9068-python-access-token-validator",
 }
 
 [build-system]
