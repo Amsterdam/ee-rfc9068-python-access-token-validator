@@ -8,9 +8,7 @@ dependencies = [
     "pydantic>=2.11.9",
     "pyjwt[crypto]>=2.10.1",
 ]
-urls = {
-    "repository" = "https://github.com/Amsterdam/ee-rfc9068-python-access-token-validator",
-}
+urls = {repository = "https://github.com/Amsterdam/ee-rfc9068-python-access-token-validator"}
 
 [build-system]
 requires = ["uv_build>=0.8.19,<0.12.0"]
