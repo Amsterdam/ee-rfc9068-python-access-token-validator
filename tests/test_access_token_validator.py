@@ -370,10 +370,10 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                 "iat": 12345,
                 "jti": "unique_id_of_token",
             },
-            "1 validation error for Payload\niss\n  Field required [type=missing, inpu"
+            ("1 validation error for Payload\niss\n  Field required [type=missing, inpu"
             "t_value={'exp': 123456, 'aud': 'a...': 'unique_id_of_token'}, input_type="
             "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
-            "/v/missing",
+            "/v/missing"),
         ),
         # exp missing
         (
@@ -385,10 +385,10 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                 "iat": 12345,
                 "jti": "unique_id_of_token",
             },
-            "1 validation error for Payload\nexp\n  Field required [type=missing, inpu"
+            ("1 validation error for Payload\nexp\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
             "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
-            "/v/missing",
+            "/v/missing"),
         ),
         # aud missing
         (
@@ -400,10 +400,10 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                 "iat": 12345,
                 "jti": "unique_id_of_token",
             },
-            "1 validation error for Payload\naud\n  Field required [type=missing, inpu"
+            ("1 validation error for Payload\naud\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
             "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
-            "/v/missing",
+            "/v/missing"),
         ),
         # sub missing
         (
@@ -415,10 +415,10 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                 "iat": 12345,
                 "jti": "unique_id_of_token",
             },
-            "1 validation error for Payload\nsub\n  Field required [type=missing, inpu"
+            ("1 validation error for Payload\nsub\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
             "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
-            "/v/missing",
+            "/v/missing"),
         ),
         # client_id missing
         (
@@ -430,10 +430,10 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                 "iat": 12345,
                 "jti": "unique_id_of_token",
             },
-            "1 validation error for Payload\nclient_id\n  Field required [type=missing"
+            ("1 validation error for Payload\nclient_id\n  Field required [type=missing"
             ", input_value={'iss': 'https://example....': 'unique_id_of_token'}, input"
             "_type=dict]\n    For further information visit https://errors.pydantic.de"
-            "v/2.13/v/missing",
+            "v/2.13/v/missing"),
         ),
         # iat missing
         (
@@ -445,10 +445,10 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                 "client_id": "client_id",
                 "jti": "unique_id_of_token",
             },
-            "1 validation error for Payload\niat\n  Field required [type=missing, inpu"
+            ("1 validation error for Payload\niat\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
             "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
-            "/v/missing",
+            "/v/missing"),
         ),
         # jti missing
         (
@@ -460,10 +460,10 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                 "client_id": "client_id",
                 "iat": 12345,
             },
-            "1 validation error for Payload\njti\n  Field required [type=missing, inpu"
+            ("1 validation error for Payload\njti\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....lient_id', 'iat': 12345}, input_type="
             "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
-            "/v/missing",
+            "/v/missing"),
         ),
     ],
 )
