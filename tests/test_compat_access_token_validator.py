@@ -551,7 +551,7 @@ def test_raises_when_signature_invalid() -> None:
 
 
 def test_raises_when_key_is_not_public_rsa_key() -> None:
-    jwk = PyJWK({"kty": "oct", "k": ""})
+    jwk = PyJWK({"kty": "oct", "k": "abc"})
     jwk_client = Mock(PyJWKClient)
     jwk_client.get_signing_key.return_value = jwk
     jwk_resolver = PyJwtJWKResolver(jwk_client)
