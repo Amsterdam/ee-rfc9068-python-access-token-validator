@@ -186,11 +186,11 @@ def test_missing_alg_and_typ_header(validate: RFC9068AccessTokenValidator) -> No
                                           "Field required [type=missing, input_value="
                                           "{'kid': '1234'}, input_type=dict]\n    For"
                                           " further information visit https://errors."
-                                          "pydantic.dev/2.13/v/missing\nalg\n  Field "
+                                          "pydantic.dev/2.14/v/missing\nalg\n  Field "
                                           "required [type=missing, input_value={'kid'"
                                           ": '1234'}, input_type=dict]\n    For furth"
                                           "er information visit https://errors.pydant"
-                                          "ic.dev/2.13/v/missing")
+                                          "ic.dev/2.14/v/missing")
 
 
 def test_missing_alg_and_kid_header(validate: RFC9068AccessTokenValidator) -> None:
@@ -204,11 +204,11 @@ def test_missing_alg_and_kid_header(validate: RFC9068AccessTokenValidator) -> No
     assert str(exc_info.value) == ("2 validation errors for JWTHeader\nalg\n  Field "
                                    "required [type=missing, input_value={'typ': 'at+"
                                    "jwt'}, input_type=dict]\n    For further informa"
-                                   "tion visit https://errors.pydantic.dev/2.13/v/mi"
+                                   "tion visit https://errors.pydantic.dev/2.14/v/mi"
                                    "ssing\nkid\n  Field required [type=missing, inpu"
                                    "t_value={'typ': 'at+jwt'}, input_type=dict]\n   "
                                    " For further information visit https://errors.py"
-                                   "dantic.dev/2.13/v/missing")
+                                   "dantic.dev/2.14/v/missing")
 
 
 def test_missing_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -> None:
@@ -222,11 +222,11 @@ def test_missing_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -> No
     assert str(exc_info.value) == ("2 validation errors for JWTHeader\ntyp\n  Field "
                                    "required [type=missing, input_value={'alg': 'RS2"
                                    "56'}, input_type=dict]\n    For further informat"
-                                   "ion visit https://errors.pydantic.dev/2.13/v/mis"
+                                   "ion visit https://errors.pydantic.dev/2.14/v/mis"
                                    "sing\nkid\n  Field required [type=missing, input"
                                    "_value={'alg': 'RS256'}, input_type=dict]\n    F"
                                    "or further information visit https://errors.pyda"
-                                   "ntic.dev/2.13/v/missing")
+                                   "ntic.dev/2.14/v/missing")
 
 
 def test_missing_kid_header(validate: RFC9068AccessTokenValidator) -> None:
@@ -253,14 +253,14 @@ def test_missing_all_headers(validate: RFC9068AccessTokenValidator) -> None:
                                           "Field required [type=missing, input_value="
                                           "{}, input_type=dict]\n    For further info"
                                           "rmation visit https://errors.pydantic.dev/"
-                                          "2.13/v/missing\nalg\n  Field required [typ"
+                                          "2.14/v/missing\nalg\n  Field required [typ"
                                           "e=missing, input_value={}, input_type=dict"
                                           "]\n    For further information visit https"
-                                          "://errors.pydantic.dev/2.13/v/missing\nkid"
+                                          "://errors.pydantic.dev/2.14/v/missing\nkid"
                                           "\n  Field required [type=missing, input_va"
                                           "lue={}, input_type=dict]\n    For further "
                                           "information visit https://errors.pydantic."
-                                          "dev/2.13/v/missing")
+                                          "dev/2.14/v/missing")
 
 
 def test_invalid_alg_header(validate: RFC9068AccessTokenValidator) -> None:
@@ -274,7 +274,7 @@ def test_invalid_alg_header(validate: RFC9068AccessTokenValidator) -> None:
     assert str(exc_info.value) == ("1 validation error for JWTHeader\nalg\n  Input sho"
                                    "uld be 'RS256' [type=enum, input_value='none', inp"
                                    "ut_type=str]\n    For further information visit ht"
-                                   "tps://errors.pydantic.dev/2.13/v/enum")
+                                   "tps://errors.pydantic.dev/2.14/v/enum")
 
 
 def test_invalid_kid_header(validate: RFC9068AccessTokenValidator) -> None:
@@ -288,7 +288,7 @@ def test_invalid_kid_header(validate: RFC9068AccessTokenValidator) -> None:
     assert str(exc_info.value) == ("1 validation error for JWTHeader\nkid\n  Input shou"
                                    "ld be a valid string [type=string_type, input_value"
                                    "=456789, input_type=int]\n    For further informati"
-                                   "on visit https://errors.pydantic.dev/2.13/v/string_"
+                                   "on visit https://errors.pydantic.dev/2.14/v/string_"
                                    "type")
 
 
@@ -317,10 +317,10 @@ def test_invalid_alg_and_typ_header(validate: RFC9068AccessTokenValidator) -> No
                                    "uld be 'at+jwt', 'application/at+jwt' or 'JWT' [typ"
                                    "e=enum, input_value='invalid', input_type=str]\n   "
                                    " For further information visit https://errors.pydan"
-                                   "tic.dev/2.13/v/enum\nalg\n  Input should be 'RS256'"
+                                   "tic.dev/2.14/v/enum\nalg\n  Input should be 'RS256'"
                                    " [type=enum, input_value='none', input_type=str]\n "
                                    "   For further information visit https://errors.pyd"
-                                   "antic.dev/2.13/v/enum")
+                                   "antic.dev/2.14/v/enum")
 
 
 def test_invalid_alg_and_kid_header(validate: RFC9068AccessTokenValidator) -> None:
@@ -334,10 +334,10 @@ def test_invalid_alg_and_kid_header(validate: RFC9068AccessTokenValidator) -> No
     assert str(exc_info.value) == ("2 validation errors for JWTHeader\nalg\n  Input sho"
                                    "uld be 'RS256' [type=enum, input_value='none', inpu"
                                    "t_type=str]\n    For further information visit http"
-                                   "s://errors.pydantic.dev/2.13/v/enum\nkid\n  Input s"
+                                   "s://errors.pydantic.dev/2.14/v/enum\nkid\n  Input s"
                                    "hould be a valid string [type=string_type, input_va"
                                    "lue=1234, input_type=int]\n    For further informat"
-                                   "ion visit https://errors.pydantic.dev/2.13/v/string"
+                                   "ion visit https://errors.pydantic.dev/2.14/v/string"
                                    "_type")
 
 
@@ -353,10 +353,10 @@ def test_invalid_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -> No
                                    "uld be 'at+jwt', 'application/at+jwt' or 'JWT' [typ"
                                    "e=enum, input_value='image/png', input_type=str]\n "
                                    "   For further information visit https://errors.pyd"
-                                   "antic.dev/2.13/v/enum\nkid\n  Input should be a val"
+                                   "antic.dev/2.14/v/enum\nkid\n  Input should be a val"
                                    "id string [type=string_type, input_value=1234, inpu"
                                    "t_type=int]\n    For further information visit http"
-                                   "s://errors.pydantic.dev/2.13/v/string_type")
+                                   "s://errors.pydantic.dev/2.14/v/string_type")
 
 
 def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -> None:
@@ -371,13 +371,13 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
                                    "uld be 'at+jwt', 'application/at+jwt' or 'JWT' [typ"
                                    "e=enum, input_value='it+jwt', input_type=str]\n    "
                                    "For further information visit https://errors.pydant"
-                                   "ic.dev/2.13/v/enum\nalg\n  Input should be 'RS256' "
+                                   "ic.dev/2.14/v/enum\nalg\n  Input should be 'RS256' "
                                    "[type=enum, input_value='none', input_type=str]\n  "
                                    "  For further information visit https://errors.pyda"
-                                   "ntic.dev/2.13/v/enum\nkid\n  Input should be a vali"
+                                   "ntic.dev/2.14/v/enum\nkid\n  Input should be a vali"
                                    "d string [type=string_type, input_value=1234, input"
                                    "_type=int]\n    For further information visit https"
-                                   "://errors.pydantic.dev/2.13/v/string_type")
+                                   "://errors.pydantic.dev/2.14/v/string_type")
 
 
 @pytest.mark.parametrize(
@@ -395,7 +395,7 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
             },
             ("1 validation error for Payload\niss\n  Field required [type=missing, inpu"
             "t_value={'exp': 123456, 'aud': 'a...': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.14"
             "/v/missing"),
         ),
         # exp missing
@@ -410,7 +410,7 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
             },
             ("1 validation error for Payload\nexp\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.14"
             "/v/missing"),
         ),
         # aud missing
@@ -425,7 +425,7 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
             },
             ("1 validation error for Payload\naud\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.14"
             "/v/missing"),
         ),
         # sub missing
@@ -440,7 +440,7 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
             },
             ("1 validation error for Payload\nsub\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.14"
             "/v/missing"),
         ),
         # client_id missing
@@ -456,7 +456,7 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
             ("1 validation error for Payload\nclient_id\n  Field required [type=missing"
             ", input_value={'iss': 'https://example....': 'unique_id_of_token'}, input"
             "_type=dict]\n    For further information visit https://errors.pydantic.de"
-            "v/2.13/v/missing"),
+            "v/2.14/v/missing"),
         ),
         # iat missing
         (
@@ -470,7 +470,7 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
             },
             ("1 validation error for Payload\niat\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....': 'unique_id_of_token'}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.14"
             "/v/missing"),
         ),
         # jti missing
@@ -485,7 +485,7 @@ def test_invalid_alg_typ_and_kid_header(validate: RFC9068AccessTokenValidator) -
             },
             ("1 validation error for Payload\njti\n  Field required [type=missing, inpu"
             "t_value={'iss': 'https://example....lient_id', 'iat': 12345}, input_type="
-            "dict]\n    For further information visit https://errors.pydantic.dev/2.13"
+            "dict]\n    For further information visit https://errors.pydantic.dev/2.14"
             "/v/missing"),
         ),
     ],
