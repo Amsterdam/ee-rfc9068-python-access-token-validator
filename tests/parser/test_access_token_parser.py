@@ -56,10 +56,10 @@ class TestAccessTokenParser:
 
         assert isinstance(parsed_token, ParsedAccessToken)
 
-        assert padder_mock.call_count == 3  # type: ignore[attr-defined]
-        assert header_parser_mock.call_count == 1  # type: ignore[attr-defined]
-        assert payload_parser_mock.call_count == 1  # type: ignore[attr-defined]
-        assert signature_parser_mock.call_count == 1  # type: ignore[attr-defined]
+        assert padder_mock.call_count == 3  # type: ignore[ty:unresolved-attribute]
+        assert header_parser_mock.call_count == 1  # type: ignore[ty:unresolved-attribute]
+        assert payload_parser_mock.call_count == 1  # type: ignore[ty:unresolved-attribute]
+        assert signature_parser_mock.call_count == 1  # type: ignore[ty:unresolved-attribute]
 
     def test_access_token_parser_fails_splitting(
         self,
