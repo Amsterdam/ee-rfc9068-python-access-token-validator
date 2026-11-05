@@ -26,6 +26,9 @@ class ValidAlgHeaderValues(StrEnum):
 
 
 class BaseJWTHeader(BaseModel):
+    model_config = {
+        "frozen": True,
+    }
     typ: StrEnum
     alg: ValidAlgHeaderValues
     kid: str
