@@ -21,8 +21,8 @@ class JWTHeader(BaseJWTHeader):
 
 
 class HeaderParser(HeaderParserInterface):
-    def __call__(self, header: str) -> JWTHeader:
-        decoded_header = base64.urlsafe_b64decode(header)
+    def __call__(self, parseable: str) -> JWTHeader:
+        decoded_header = base64.urlsafe_b64decode(parseable)
         try:
             return JWTHeader.model_validate_json(decoded_header)
         except ValidationError as e:

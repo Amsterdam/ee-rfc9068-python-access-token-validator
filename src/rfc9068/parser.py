@@ -26,6 +26,9 @@ class ValidAlgHeaderValues(StrEnum):
 
 
 class BaseJWTHeader(BaseModel):
+    model_config = {
+        "frozen": True,
+    }
     typ: StrEnum
     alg: ValidAlgHeaderValues
     kid: str
@@ -68,7 +71,7 @@ class AbstractParser(Generic[T, E], metaclass=ABCMeta):
 
 class HeaderParserInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, header: str) -> BaseJWTHeader: ...
+    def __call__(self, parseable: str) -> BaseJWTHeader: ...
 
 
 class HeaderParser(
@@ -96,7 +99,7 @@ class Padder(PadderInterface):
 
 class PayloadParserInterface(metaclass=ABCMeta):
     @abstractmethod
-    def __call__(self, payload: str) -> Payload: ...
+    def __call__(self, parseable: str) -> Payload: ...
 
 
 class PayloadParser(
