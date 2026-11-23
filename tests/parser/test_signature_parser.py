@@ -21,4 +21,4 @@ def test_parse_invalid_signature() -> None:
               "kY-dDhX53BUB6FKDxXiJfQZO0SB94W1QJpYiPjQ31H92R4T1AyMDhKMA3n0_U4J7qx89TTW0"
               "esiiniXvE20RwdYgXVqb32-29FukAj0vDrezR5j8gRkHTlJGzbfKpl3iJ-aL5-_G2-Q6SSnV"
               "GDoNgZZjav3cmHvosiPPgrtEmO5sN05XqtNteL-uYeIB1RsvVFr7pyrOt7yglQFZuZdZZFXp"
-              "EtVILImoO94A7liKJ29VySb_Ol4YgYRoFCK5BG1Ju5XOC00kdqSwaw")
+              "EtVILImoO94A7liKJ29VySb_Ol4Yg")
