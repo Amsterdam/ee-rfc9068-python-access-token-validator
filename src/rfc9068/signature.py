@@ -22,7 +22,7 @@ class PyJwtJWKResolver(JWKResolverInterface):
         self._jwks_client = jwks_client
 
     def __call__(self, kid: str) -> bytes:
-        key = self._jwks_client.get_signing_key(kid).key  # type: ignore[ty:missing-argument,ty:invalid-argument-type]
+        key = self._jwks_client.get_signing_key(kid).key
         if not isinstance(key, RSAPublicKey):
             msg = "Key should be an RSA public key!"
             raise TypeError(msg)
